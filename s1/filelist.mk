@@ -17,4 +17,4 @@ CFLAGS += -I$(MYLIB_PATH)
 # List all c files locations that must be included (use space as separate e.g. LIBSRCS += path_to/file1.c path_to/file2.c)
 # ONLY use relative file paths that start with $(SOURCELIB_ROOT)../
 # DO NOT USE absolute file paths (e.g. /home/users/myuser/mydir)
-LIBSRCS += $(MYLIB_PATH)/s4575272_lta1000g.c 
+LIBSRCS += $(MYLIB_PATH)/s4575272_lta1000g.c  $(MYLIB_PATH)/s4575272_joystick.c
