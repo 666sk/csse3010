@@ -20,6 +20,7 @@ OBJS=$(SRCS:.c=.o)
 all: proj
 
 #include nucelo-f429zi makefile - NOTE MUST BE LAST TO INCLUDE
+include $(SOURCELIB_ROOT)/../repo/s1/filelist.mk
 include $(SOURCELIB_ROOT)/components/boards/nucleo-f429zi/board.mk
 include $(SOURCELIB_ROOT)/components/mk/m_launch.mk
 include $(SOURCELIB_ROOT)/components/mk/m_common.mk

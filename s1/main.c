@@ -1,20 +1,21 @@
 #include "board.h"
 #include "processor_hal.h"
-#include <string.h>
+#include "s4575272_lta1000g.h"
+
 
 void hardware_init(void);
 
-//xie zai mylib li de functions
-void s4575272_reg_lta1000g_init(void);
+//defined in lta1000g.c file
+extern void s4575272_reg_lta1000g_init(void);
 void lta1000g_seg_set(int segment, unsigned char segment_value);
-void s4575272_reg_lta1000g_init_write(unsigned short value);
-/*
-s4575272_reg_joystick_pb_init();
-s4575272_reg_joystick_pb_isr();
-s4575272_reg_joystick_press_get();
-s4575272_reg_joystick_press_reset();
-*/
-static int joystick_press_counter;
+extern void s4575272_reg_lta1000g_init_write(unsigned short value);
+
+extern void s4575272_reg_joystick_pb_init(void);
+void s4575272_reg_joystick_pb_isr(void); //callback function
+void s4575272_reg_joystick_press_reset(void);
+int s4575272_reg_joystick_press_get(void);
+
+static int joystick_press_counter; //只在定义该变量的源文件有效，同一源程序的其他源文件整不能使用它。
 
 
 /*
@@ -25,13 +26,14 @@ int main(void)  {
 	uint16_t write_value = 0;
 
 	HAL_Init();			  //Initialise board.
-
 	hardware_init();	//Initialise hardware modules
 
 	// Main processing loop
   
   while (1) {
-    s4575272_reg_lta1000g_init_write(987);
+
+    s4575272_reg_lta1000g_init_write(s4575272_reg_joystick_press_get());
+
   }
   
 
@@ -43,158 +45,60 @@ int main(void)  {
  */
 void hardware_init(void) {
 
-  s4575272_reg_lta1000g_init(); //Initialise GPIO pins
+  s4575272_reg_lta1000g_init(); //Initialise GPIO pins for LED 
+  s4575272_reg_joystick_pb_init(); //Initialise GPIO pins for joystick
+
+}
+
+
+//Enable the joystick pushbutton source, e.g. enable GPIO input and interrupt
+void s4575272_reg_joystick_pb_init(){
+  __GPIOA_CLK_ENABLE(); //no need actually
+
+  GPIOA->OSPEEDR |= (GPIO_SPEED_FAST << 3); //set fast speed
+  GPIOA->PUPDR &= ~(0x03 << (3 * 2)); //set as no pull up/pull down
+  GPIOA->MODER &= ~(0x03 << (3 * 2)); //set as input mode
   
+  RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN; //Enable EXTI clock
+  
+  //Select trigger source (port A, pin 3) on EXTICR1. (Should be 0 at all bits)
+  SYSCFG->EXTICR[0] &= ~SYSCFG_EXTICR1_EXTI3; //Clear the bits
+  SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PA;
+  //SYSCFG->EXTICR[0] &= ~(0x0FFF); //Reset the other bits
+
+  EXTI->RTSR |= EXTI_RTSR_TR3;  //enable rising edge
+  EXTI->FTSR &= ~EXTI_RTSR_TR3;  //disable falling edge
+  EXTI->IMR |= EXTI_IMR_IM3;  //enable external interrupt
+
+  //Enable priority 10 and interrupt callback.
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 10, 0);
+  HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+}
+
+void s4575272_reg_joystick_pb_isr(void) { //+debouncing
+
+  
+  joystick_press_counter++;
 
 }
 
-void s4575272_reg_lta1000g_init(void) {
 
-  BRD_LEDInit();  //no need actually
-  __GPIOA_CLK_ENABLE();
-  __GPIOB_CLK_ENABLE();
-  __GPIOC_CLK_ENABLE();
+void EXTI3_IRQHandler(void) {
+  NVIC_ClearPendingIRQ(EXTI3_IRQn);
 
-  //Initialise c6 and c7 as output.
-  GPIOC->MODER &= ~(0x0F << (6 * 2));  //clear bits for bit 12,13,14,15 which are MODER6&7
-  GPIOC->MODER |= (0x05 << (6 * 2));   //Set for push pull output for bit 12,13,14,15
-  GPIOC->OSPEEDR &= ~(0x0F<<(6 * 2));
-  GPIOC->OSPEEDR |=   0x0A<<(6 * 2);  // Set for Fast speed
-  GPIOC->OTYPER &= ~(0x03 << 6);       //Clear Bit for Push/Pull output
+  if ((EXTI->PR & EXTI_PR_PR3) == EXTI_PR_PR3) {
+    EXTI->PR |= EXTI_PR_PR3;
 
-  //Initialise A4 and A15 as output
-  GPIOA->MODER &= ~(0x03 << (4 * 2));
-  GPIOA->MODER &= ~(0x03 << (15 * 2)); //clear bits for bit 8,30
-  GPIOA->MODER |= (0x01 << (4 * 2));
-  GPIOA->MODER |= (0x01 << (15 * 2)); // set for push pull output for bit 8,30
-  GPIOA->OSPEEDR &= ~(0x03 << (4 * 2));
-  GPIOA->OSPEEDR &= ~(0x03 << (15 * 2));
-  GPIOA->OSPEEDR |= (0x02 << (4 * 2));
-  GPIOA->OSPEEDR |= (0x02 << (15 * 2)); //SET FAST SPEED
-  GPIOA->OTYPER &= ~(0x01 << 4);
-  GPIOA->OTYPER &= ~(0x01 << 15); //clear bit for push/pull output
-
-  //Initialise B3,4,5,12,13,15 as output
-  GPIOB->MODER &= ~(0x3F << (3 * 2));
-  GPIOB->MODER &= ~(0xCF << (12 * 2)); //clear bits
-  GPIOB->MODER |= (0x15 << (3 * 2));
-  GPIOB->MODER |= (0x45 << (12 * 2)); //set for output
-  GPIOB->OSPEEDR &= ~(0x3F << (3 * 2));
-  GPIOB->OSPEEDR &= ~(0xCF << (12 * 2)); //clear bits
-  GPIOB->OSPEEDR |= (0x2A << (3 * 2));
-  GPIOB->OSPEEDR |= (0x8A << (12 * 2)); //set fast speed
-  GPIOB->OTYPER &= ~(0X07 << 3);
-  GPIOB->OTYPER &= ~(0X0B << 12); //clear bit for push/pull
-}
-
-void lta1000g_seg_set(int segment, unsigned char segment_value){
-  switch(segment) {
-    case 0:
-      if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 4);
-      } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 4);
-      }
-      return;
-    
-    case 1:
-      if (segment_value == '0') {
-        GPIOA->ODR &= ~(0X01 << 4);
-      } else if (segment_value == '1') {
-        GPIOA->ODR |= (0X01 << 4);
-      }
-      return;
-      
-    case 2:
-      if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 3);
-      } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 3);
-      }
-      return;
-
-    case 3:
-      if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 5);
-      } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 5);
-      }
-      return;
-
-    case 4:
-      if (segment_value == '0') {
-        GPIOC->ODR &= ~(0X01 << 7);
-      } else if (segment_value == '1') {
-        GPIOC->ODR |= (0X01 << 7);
-      }
-      return;
-
-    case 5:
-      if (segment_value == '0') {
-        GPIOA->ODR &= ~(0X01 << 15);
-      } else if (segment_value == '1') {
-        GPIOA->ODR |= (0X01 << 15);
-      }
-      return;
-
-    case 6:
-      if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 12);
-      } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 12);
-      }
-      return;
-
-    case 7:
-      if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 13);
-      } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 13);
-      }
-      return;
-
-    case 8:
-      if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 15);
-      } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 15);
-      }
-      return;
-
-    case 9:
-      if (segment_value == '0') {
-        GPIOC->ODR &= ~(0X01 << 6);
-      } else if (segment_value == '1') {
-        GPIOC->ODR |= (0X01 << 6);
-      }
-      return;
+    s4575272_reg_joystick_pb_isr(); //call this callback function
   }
 }
 
-void s4575272_reg_lta1000g_init_write(unsigned short value){
-
-  int rev_seg_array[10];
-  memset(rev_seg_array, 0, sizeof(rev_seg_array));
-  int seg_array[10]; //store the binary bits
-  int remainder;
-  int k = 0;
-
-  do {
-
-    remainder = value % 2;
-    rev_seg_array[k] = remainder;
-    value /= 2;
-    k++;
-  } while (value >= 1);
-
-  for (int i = 0; i <= 9; i++) {
-    if (rev_seg_array[i] & 0x01) {
-      lta1000g_seg_set(i, '1');
-    } else {
-      lta1000g_seg_set(i, '0');
-    }
-  }
 
 
+int s4575272_reg_joystick_press_get(void){
+  return joystick_press_counter;
+}
 
+void s4575272_reg_joystick_press_reset(void){
+  joystick_press_counter = 0;
 }
