@@ -16,8 +16,8 @@
 #ifndef __S4575272_LTA1000G_H__
 #define __S4575272_LTA1000G_H__
 
-extern void s4575272_reg_lta1000g_init();
-void lta1000g_seg_set(int segment, unsigned char segment_value);
-extern void s4575272_reg_lta1000g_write(unsigned short value);
+extern void s4575272_reg_lta1000g_init(); //Initialization function
+void lta1000g_seg_set(int segment, unsigned char segment_value); //set the value for the corresponding LED Bar segment GPIO pin 
+extern void s4575272_reg_lta1000g_write(unsigned short value);//Write the LED Bar segments high or low
 
 #endif
