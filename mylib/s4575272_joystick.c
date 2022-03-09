@@ -36,42 +36,43 @@ extern void s4575272_reg_joystick_pb_init(){
   SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PA;
   //SYSCFG->EXTICR[0] &= ~(0x0FFF); //Reset the other bits
 
-  EXTI->RTSR |= EXTI_RTSR_TR3;  //enable rising edge
-  EXTI->FTSR &= ~EXTI_RTSR_TR3;  //disable falling edge
+  EXTI->FTSR |= EXTI_RTSR_TR3;  //enable  edge
+  EXTI->RTSR &= ~EXTI_RTSR_TR3;  //disable r edge
   EXTI->IMR |= EXTI_IMR_IM3;  //enable external interrupt
 
   //Enable priority 10 and interrupt callback.
-  HAL_NVIC_SetPriority(EXTI3_IRQn, 10, 0);
+  HAL_NVIC_SetPriority(EXTI3_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 }
 
 extern void s4575272_reg_joystick_pb_isr(void) { //+debouncing
   uint16_t m=0;
 
-      if (GPIOA->IDR & (0x01 << 3) == (0x01 << 3)) {
-        while (m<=20000) {
+      if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
+        while (m <= 30000) {
           m++;
         }
         m = 0;
-        if (GPIOA->IDR & (0x01 << 3) == (0x01 << 3)) {
+
+        if (!(GPIOA->IDR & (0x01 << 3))) {
           joystick_press_counter++;
-          //GPIOB->ODR |= (0X01 << 12);
+
     }
+         
   }
   
-
-
 }
 
 
 void EXTI3_IRQHandler(void) {
-  NVIC_ClearPendingIRQ(EXTI3_IRQn);
+  //NVIC_ClearPendingIRQ(EXTI3_IRQn);
 
   if ((EXTI->PR & EXTI_PR_PR3) == EXTI_PR_PR3) {
     EXTI->PR |= EXTI_PR_PR3;
 
     s4575272_reg_joystick_pb_isr(); //call this callback function
   }
+  NVIC_ClearPendingIRQ(EXTI3_IRQn);
 }
 
 

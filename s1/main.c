@@ -29,7 +29,7 @@ int main(void)  {
 
 	// Main processing loop
   while (1) {
-
+    
     s4575272_reg_lta1000g_init_write(s4575272_reg_joystick_press_get());
 
   }
