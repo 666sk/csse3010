@@ -68,6 +68,7 @@ extern void s4575272_reg_lta1000g_init_write(unsigned short value){
 
   //transform decimal to binary and store it in array in reverse order
   do {
+
     remainder = value % 2;
     rev_seg_array[k] = remainder;
     value /= 2;
@@ -76,19 +77,23 @@ extern void s4575272_reg_lta1000g_init_write(unsigned short value){
 
   //Set the corresponding LED segment
   for (int i = 0; i <= 9; i++) {
+
     if (rev_seg_array[i] & 0x01) {
+
       lta1000g_seg_set(i, '1');
     } else {
+
       lta1000g_seg_set(i, '0');
     }
   }
-
 }
 
 //set the value for the corresponding LED Bar segment GPIO pin 
 void lta1000g_seg_set(int segment, unsigned char segment_value){
   switch(segment) {
+
     case 0:
+
       if (segment_value == '0') {
         GPIOB->ODR &= ~(0X01 << 4);
       } else if (segment_value == '1') {
@@ -97,6 +102,7 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       return;
     
     case 1:
+
       if (segment_value == '0') {
         GPIOA->ODR &= ~(0X01 << 4);
       } else if (segment_value == '1') {
@@ -105,6 +111,7 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       return;
       
     case 2:
+
       if (segment_value == '0') {
         GPIOB->ODR &= ~(0X01 << 3);
       } else if (segment_value == '1') {
@@ -113,6 +120,7 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       return;
 
     case 3:
+
       if (segment_value == '0') {
         GPIOB->ODR &= ~(0X01 << 5);
       } else if (segment_value == '1') {
@@ -121,6 +129,7 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       return;
 
     case 4:
+
       if (segment_value == '0') {
         GPIOC->ODR &= ~(0X01 << 7);
       } else if (segment_value == '1') {
@@ -129,6 +138,7 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       return;
 
     case 5:
+
       if (segment_value == '0') {
         GPIOA->ODR &= ~(0X01 << 15);
       } else if (segment_value == '1') {
@@ -137,6 +147,7 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       return;
 
     case 6:
+
       if (segment_value == '0') {
         GPIOB->ODR &= ~(0X01 << 12);
       } else if (segment_value == '1') {
@@ -145,6 +156,7 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       return;
 
     case 7:
+
       if (segment_value == '0') {
         GPIOB->ODR &= ~(0X01 << 13);
       } else if (segment_value == '1') {
@@ -153,6 +165,7 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       return;
 
     case 8:
+
       if (segment_value == '0') {
         GPIOB->ODR &= ~(0X01 << 15);
       } else if (segment_value == '1') {
@@ -161,6 +174,7 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       return;
 
     case 9:
+    
       if (segment_value == '0') {
         GPIOC->ODR &= ~(0X01 << 6);
       } else if (segment_value == '1') {

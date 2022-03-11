@@ -20,10 +20,10 @@
 #define __S4575272_JOYSTICK_H__
 
 static int joystick_press_counter;
+static uint32_t prev_time;
 extern void s4575272_reg_joystick_pb_init(void); //Initialization function
 extern void s4575272_reg_joystick_pb_isr(void); //callback function
 extern void s4575272_reg_joystick_press_reset(void); //reset counter
 extern int s4575272_reg_joystick_press_get(void); //return counter value
-
 
 #endif

@@ -20,7 +20,8 @@
 #include "processor_hal.h"
 #include "s4575272_joystick.h"
 
-static int state = 0;
+static uint32_t prev_time = 0;
+
 //Enable the joystick pushbutton source, e.g. enable GPIO input and interrupt
 extern void s4575272_reg_joystick_pb_init(){
 
@@ -35,7 +36,7 @@ extern void s4575272_reg_joystick_pb_init(){
   SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PA;
 
   EXTI->FTSR |= EXTI_RTSR_TR3;  //enable falling edge
-  EXTI->RTSR &= ~EXTI_RTSR_TR3;  //disable rising edge
+  EXTI->RTSR |= EXTI_RTSR_TR3;  //enable rising edge
   EXTI->IMR |= EXTI_IMR_IM3;  //enable external interrupt
 
   //Enable priority 10 and interrupt callback.
@@ -44,59 +45,31 @@ extern void s4575272_reg_joystick_pb_init(){
 }
 
 //The callback function that count how many times the button being pressed
-/*
 extern void s4575272_reg_joystick_pb_isr(void) {
-  uint32_t delay = 0;
+  uint32_t current_time;
+  current_time = HAL_GetTick();
 
-  if ((GPIOA->IDR & (0x01 << 3)) == (0x01 << 3)) {
-      //while (delay <= 30000) {
-      //  delay++;
-      //}
-      //delay = 0;
-
-    if ((GPIOA->IDR & (0x01 << 3)) == (0x01 << 3) && state == 0) {
-      joystick_press_counter++;
-    }
-
-    //while (delay <= 30000) {
-    //  delay++;
-    //}
-    state ^= 1;         
-  }
-  
-}*/
-
-extern void s4575272_reg_joystick_pb_isr(void) {
-  uint32_t delay = 0;
-
-  if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
-      while (delay <= 50000) {
-        delay++;
-      }
-      delay = 0;
+  //Debouncing process
+  if ((current_time - prev_time) > 10) {
 
     if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
       joystick_press_counter++;
     }
 
-    while (delay <= 50000) {
-      delay++;
-    }      
+  prev_time = HAL_GetTick();
   }
-  
 }
 
 //Interrupt handler function
 void EXTI3_IRQHandler(void) {
+
   NVIC_ClearPendingIRQ(EXTI3_IRQn);
   if ((EXTI->PR & EXTI_PR_PR3) == EXTI_PR_PR3) {
-    EXTI->PR |= EXTI_PR_PR3;
 
+    EXTI->PR |= EXTI_PR_PR3;
     s4575272_reg_joystick_pb_isr(); //call this callback function
   }
-  
 }
-
 
 //Return the counter value
 extern int s4575272_reg_joystick_press_get(void){

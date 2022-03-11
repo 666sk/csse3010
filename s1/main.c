@@ -26,7 +26,6 @@ static int joystick_press_counter;
  */
 int main(void)  {
 
-
 	HAL_Init();			  //Initialise board.
 	hardware_init();	//Initialise hardware modules
 
@@ -34,10 +33,10 @@ int main(void)  {
   while (1) {
     
     s4575272_reg_lta1000g_init_write(s4575272_reg_joystick_press_get());
-    if (s4575272_reg_joystick_press_get() > 1023) {
-      s4575272_reg_joystick_press_reset();
+    if (s4575272_reg_joystick_press_get() > 1023) { 
+      s4575272_reg_joystick_press_reset(); //The maximum number can display is 1023
     }
-    HAL_Delay(10);
+    HAL_Delay(10); //Refresh display every 10ms
 
   }
   
