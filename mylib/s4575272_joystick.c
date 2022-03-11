@@ -20,7 +20,7 @@
 #include "processor_hal.h"
 #include "s4575272_joystick.h"
 
-
+static int state = 0;
 //Enable the joystick pushbutton source, e.g. enable GPIO input and interrupt
 extern void s4575272_reg_joystick_pb_init(){
 
@@ -44,20 +44,44 @@ extern void s4575272_reg_joystick_pb_init(){
 }
 
 //The callback function that count how many times the button being pressed
+/*
 extern void s4575272_reg_joystick_pb_isr(void) {
-  uint16_t delay = 0;
+  uint32_t delay = 0;
 
-      if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
-        while (delay <= 50000) {
-          delay++;
-        }
-        delay = 0;
+  if ((GPIOA->IDR & (0x01 << 3)) == (0x01 << 3)) {
+      //while (delay <= 30000) {
+      //  delay++;
+      //}
+      //delay = 0;
 
-        if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
-          joystick_press_counter++;
-
+    if ((GPIOA->IDR & (0x01 << 3)) == (0x01 << 3) && state == 0) {
+      joystick_press_counter++;
     }
-         
+
+    //while (delay <= 30000) {
+    //  delay++;
+    //}
+    state ^= 1;         
+  }
+  
+}*/
+
+extern void s4575272_reg_joystick_pb_isr(void) {
+  uint32_t delay = 0;
+
+  if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
+      while (delay <= 50000) {
+        delay++;
+      }
+      delay = 0;
+
+    if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
+      joystick_press_counter++;
+    }
+
+    while (delay <= 50000) {
+      delay++;
+    }      
   }
   
 }
@@ -65,12 +89,12 @@ extern void s4575272_reg_joystick_pb_isr(void) {
 //Interrupt handler function
 void EXTI3_IRQHandler(void) {
   NVIC_ClearPendingIRQ(EXTI3_IRQn);
-
   if ((EXTI->PR & EXTI_PR_PR3) == EXTI_PR_PR3) {
     EXTI->PR |= EXTI_PR_PR3;
 
     s4575272_reg_joystick_pb_isr(); //call this callback function
   }
+  
 }
 
 

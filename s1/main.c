@@ -1,3 +1,12 @@
+/**
+  ******************************************************************************
+  * @file    stage1/main.c
+  * @author  Kuang Sheng
+  * @date    11032022
+  * @brief   Nucleo429ZI onboard stage1 design task. The LED Bar displays the number of times
+  * the Joystick pushbutton has been pressed.
+  ******************************************************************************
+  */
 #include "board.h"
 #include "processor_hal.h"
 #include "s4575272_lta1000g.h"
@@ -25,9 +34,10 @@ int main(void)  {
   while (1) {
     
     s4575272_reg_lta1000g_init_write(s4575272_reg_joystick_press_get());
-    if (joystick_press_counter > 1023) {
+    if (s4575272_reg_joystick_press_get() > 1023) {
       s4575272_reg_joystick_press_reset();
     }
+    HAL_Delay(10);
 
   }
   
