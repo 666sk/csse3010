@@ -20,7 +20,7 @@
 #include "processor_hal.h"
 #include "s4575272_joystick.h"
 
-static uint32_t prev_time = 0;
+static uint32_t prevTime = 0;
 
 //Enable the joystick pushbutton source, e.g. enable GPIO input and interrupt
 extern void s4575272_reg_joystick_pb_init(){
@@ -46,17 +46,17 @@ extern void s4575272_reg_joystick_pb_init(){
 
 //The callback function that count how many times the button being pressed
 extern void s4575272_reg_joystick_pb_isr(void) {
-  uint32_t current_time;
-  current_time = HAL_GetTick();
+  uint32_t currentTime;
+  currentTime = HAL_GetTick();
 
   //Debouncing process
-  if ((current_time - prev_time) > 10) {
+  if ((currentTime - prevTime) > 10) {
 
     if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
       joystick_press_counter++;
     }
 
-  prev_time = HAL_GetTick();
+  prevTime = HAL_GetTick();
   }
 }
 

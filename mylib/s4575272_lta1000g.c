@@ -61,8 +61,8 @@ void s4575272_reg_lta1000g_init(void) {
 //Write the LED Bar segments high or low
 extern void s4575272_reg_lta1000g_init_write(unsigned short value){
 
-  int rev_seg_array[10];
-  memset(rev_seg_array, 0, sizeof(rev_seg_array)); //reset array
+  int revSegArray[10];
+  memset(revSegArray, 0, sizeof(revSegArray)); //reset array
   int remainder;
   int k = 0;
 
@@ -70,7 +70,7 @@ extern void s4575272_reg_lta1000g_init_write(unsigned short value){
   do {
 
     remainder = value % 2;
-    rev_seg_array[k] = remainder;
+    revSegArray[k] = remainder;
     value /= 2;
     k++;
   } while (value >= 1);
@@ -78,7 +78,7 @@ extern void s4575272_reg_lta1000g_init_write(unsigned short value){
   //Set the corresponding LED segment
   for (int i = 0; i <= 9; i++) {
 
-    if (rev_seg_array[i] & 0x01) {
+    if (revSegArray[i] & 0x01) {
 
       lta1000g_seg_set(i, '1');
     } else {
