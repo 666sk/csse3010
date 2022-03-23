@@ -25,4 +25,11 @@ extern void s4575272_reg_joystick_pb_isr(void); //callback function
 extern void s4575272_reg_joystick_press_reset(void); //reset counter
 extern int s4575272_reg_joystick_press_get(void); //return counter value
 
+void s4575272_reg_joystick_init(void);
+
+//Calibrate (add offset) the Joystick X signal, so the stationary value is half the reference voltage
+#define S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET
+//Calibrate (add offset) the tilt servo PWM signal, the Joystick Y signal, so the stationary value is half the reference voltage
+#define S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET
+
 #endif

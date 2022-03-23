@@ -50,7 +50,7 @@ extern void s4575272_reg_joystick_pb_isr(void) {
   currentTime = HAL_GetTick();
 
   //Debouncing process
-  if ((currentTime - prevTime) > 10) {
+  if ((currentTime - prevTime) > 50) {
 
     if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
       joystick_press_counter++;
@@ -80,3 +80,104 @@ extern int s4575272_reg_joystick_press_get(void){
 extern void s4575272_reg_joystick_press_reset(void){
   joystick_press_counter = 0;
 }
+
+/****************************************************************/
+
+//For stage2!!
+ADC_HandleTypeDef AdcHandle1,AdcHandle2;
+ADC_ChannelConfTypeDef AdcChanConfig1,AdcChanConfig2;
+//Generic function to read X value
+#define S4575272_REG_JOYSTICK_X_READ() s4575272_joystick_readxy(s4575272_joystick_readxy(AdcHandle1))
+
+//Generic function to read Y value
+#define S4575272_REG_JOYSTICK_Y_READ() s4575272_joystick_readxy(s4575272_joystick_readxy(AdcHandle2))
+
+//offset
+#define S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET 0
+
+#define S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET 0
+
+//Initialise GPIO and ADC
+void s4575272_reg_joystick_init(){
+    BRD_LEDInit();		//Initialise LEDS
+
+	// Turn off LEDs
+	BRD_LEDGreenOff();
+    BRD_LEDBlueOff();
+	BRD_LEDRedOff();
+	// Enable the GPIO Clock
+    __GPIOC_CLK_ENABLE();
+  
+	// Initalise PA3 as an Analog input.
+    GPIOC->MODER |= (0x03 << (0 * 2));			//Set bits for Analog input mode
+    GPIOC->OSPEEDR &= ~(0x03<<(0 * 2));
+	GPIOC->OSPEEDR |= 0x02<<(0 * 2);  			// Fast speed
+	GPIOC->PUPDR &= ~(0x03 << (0 * 2));			//Clear bits for no push/pull
+
+	GPIOC->MODER |= (0x03 << (3 * 2));			//Set bits for Analog input mode
+    GPIOC->OSPEEDR &= ~(0x03<<(3 * 2));
+	GPIOC->OSPEEDR |= 0x02<<(3 * 2);  			// Fast speed
+	GPIOC->PUPDR &= ~(0x03 << (3 * 2));	
+
+	__ADC1_CLK_ENABLE();						//Enable ADC1 clock
+	__ADC2_CLK_ENABLE();
+
+	AdcHandle1.Instance = (ADC_TypeDef *)(ADC1_BASE);						//Use ADC1 (For PA3)
+	AdcHandle1.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;	//Set clock prescaler
+	AdcHandle1.Init.Resolution            = ADC_RESOLUTION12b;				//Set 12-bit data resolution
+	AdcHandle1.Init.ScanConvMode          = DISABLE;
+	AdcHandle1.Init.ContinuousConvMode    = DISABLE;
+	AdcHandle1.Init.DiscontinuousConvMode = DISABLE;
+	AdcHandle1.Init.NbrOfDiscConversion   = 0;
+	AdcHandle1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;	//No Trigger
+	AdcHandle1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;		//No Trigger
+	AdcHandle1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;				//Right align data
+	AdcHandle1.Init.NbrOfConversion       = 1;
+	AdcHandle1.Init.DMAContinuousRequests = DISABLE;
+	AdcHandle1.Init.EOCSelection          = DISABLE;
+
+	AdcHandle2.Instance = (ADC_TypeDef *)(ADC2_BASE);						//Use ADC1 (For PA3)
+	AdcHandle2.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;	//Set clock prescaler
+	AdcHandle2.Init.Resolution            = ADC_RESOLUTION12b;				//Set 12-bit data resolution
+	AdcHandle2.Init.ScanConvMode          = DISABLE;
+	AdcHandle2.Init.ContinuousConvMode    = DISABLE;
+	AdcHandle2.Init.DiscontinuousConvMode = DISABLE;
+	AdcHandle2.Init.NbrOfDiscConversion   = 0;
+	AdcHandle2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;	//No Trigger
+	AdcHandle2.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;		//No Trigger
+	AdcHandle2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;				//Right align data
+	AdcHandle2.Init.NbrOfConversion       = 1;
+	AdcHandle2.Init.DMAContinuousRequests = DISABLE;
+	AdcHandle2.Init.EOCSelection          = DISABLE;
+
+	HAL_ADC_Init(&AdcHandle1);		//Initialise ADC
+	HAL_ADC_Init(&AdcHandle2);
+	// Configure ADC Channel
+	AdcChanConfig1.Channel = ADC_CHANNEL_10;					//PC0 has Analog Channel 10 connected
+	AdcChanConfig1.Rank         = 1;
+	AdcChanConfig1.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+	AdcChanConfig1.Offset       = 0;
+
+	AdcChanConfig2.Channel = ADC_CHANNEL_13;
+	AdcChanConfig2.Rank         = 1;
+	AdcChanConfig2.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+	AdcChanConfig2.Offset       = 0;
+
+	HAL_ADC_ConfigChannel(&AdcHandle1, &AdcChanConfig1);		//Initialise ADC Channel
+	HAL_ADC_ConfigChannel(&AdcHandle2, &AdcChanConfig2);
+
+}
+
+//Generic function to read X or Y joystick value
+
+int s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput) {
+	if (AdcHandleInput.Instance == (ADC_TypeDef *)(ADC1_BASE)) {
+		return ADC1->DR;
+	} else if (AdcHandleInput.Instance == (ADC_TypeDef *)(ADC2_BASE)) {
+		return ADC2->DR;
+	}
+
+	///ADC1->DR or ADC2->DR
+	//AdcHadleInput.Instance == 
+}
+
