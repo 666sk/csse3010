@@ -13,6 +13,8 @@
  * EXTI3_IRQHandler() - Pushbutton EXTI Handler function
  * s4575272_reg_joystick_press_get() - Returns the value of the Joystick pushbutton press counter
  * s4575272_reg_joystick_press_reset() - Reset the Joystick event counter value to 0 
+ * s4575272_reg_joystick_init() - Initialise GPIO and ADC
+ * s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput) - Generic function to read X or Y joystick value
  *************************************************************** 
  */
 
@@ -21,6 +23,8 @@
 #include "s4575272_joystick.h"
 
 static uint32_t prevTime = 0;
+ADC_HandleTypeDef AdcHandle1,AdcHandle2;
+ADC_ChannelConfTypeDef AdcChanConfig1,AdcChanConfig2;
 
 //Enable the joystick pushbutton source, e.g. enable GPIO input and interrupt
 extern void s4575272_reg_joystick_pb_init(){
@@ -83,44 +87,21 @@ extern void s4575272_reg_joystick_press_reset(void){
 
 /****************************************************************/
 
-//For stage2!!
-ADC_HandleTypeDef AdcHandle1,AdcHandle2;
-ADC_ChannelConfTypeDef AdcChanConfig1,AdcChanConfig2;
-//Generic function to read X value
-#define S4575272_REG_JOYSTICK_X_READ() s4575272_joystick_readxy(s4575272_joystick_readxy(AdcHandle1))
-
-//Generic function to read Y value
-#define S4575272_REG_JOYSTICK_Y_READ() s4575272_joystick_readxy(s4575272_joystick_readxy(AdcHandle2))
-
-//offset
-#define S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET 0
-
-#define S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET 0
-
 //Initialise GPIO and ADC
 void s4575272_reg_joystick_init(){
     BRD_LEDInit();		//Initialise LEDS
 
-	// Turn off LEDs
-	BRD_LEDGreenOff();
-    BRD_LEDBlueOff();
-	BRD_LEDRedOff();
 	// Enable the GPIO Clock
     __GPIOC_CLK_ENABLE();
-  
-	// Initalise PA3 as an Analog input.
-    GPIOC->MODER |= (0x03 << (0 * 2));			//Set bits for Analog input mode
-    GPIOC->OSPEEDR &= ~(0x03<<(0 * 2));
-	GPIOC->OSPEEDR |= 0x02<<(0 * 2);  			// Fast speed
-	GPIOC->PUPDR &= ~(0x03 << (0 * 2));			//Clear bits for no push/pull
 
-	GPIOC->MODER |= (0x03 << (3 * 2));			//Set bits for Analog input mode
-    GPIOC->OSPEEDR &= ~(0x03<<(3 * 2));
-	GPIOC->OSPEEDR |= 0x02<<(3 * 2);  			// Fast speed
-	GPIOC->PUPDR &= ~(0x03 << (3 * 2));	
+	GPIOC->MODER &= ~(0xC3 << (0 * 2));       //Clear bits for MODER
+	GPIOC->MODER |= (0xC3 << (0 * 2));		  //Set bits for Analog input mode
+	GPIOC->OSPEEDR &= ~(0xC3<<(0 * 2));
+	GPIOC->OSPEEDR |= (0x82<<(0 * 2));	      // Fast speed
+	GPIOC->PUPDR &= ~(0xC3 << (0 * 2));		  //Clear bits for no push/pull
 
 	__ADC1_CLK_ENABLE();						//Enable ADC1 clock
-	__ADC2_CLK_ENABLE();
+	__ADC2_CLK_ENABLE();					    //Enable ADC2 clock
 
 	AdcHandle1.Instance = (ADC_TypeDef *)(ADC1_BASE);						//Use ADC1 (For PA3)
 	AdcHandle1.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;	//Set clock prescaler
@@ -150,15 +131,15 @@ void s4575272_reg_joystick_init(){
 	AdcHandle2.Init.DMAContinuousRequests = DISABLE;
 	AdcHandle2.Init.EOCSelection          = DISABLE;
 
-	HAL_ADC_Init(&AdcHandle1);		//Initialise ADC
-	HAL_ADC_Init(&AdcHandle2);
-	// Configure ADC Channel
+	HAL_ADC_Init(&AdcHandle1);		//Initialise ADC1
+	HAL_ADC_Init(&AdcHandle2);      //Initialise ADC2
+
 	AdcChanConfig1.Channel = ADC_CHANNEL_10;					//PC0 has Analog Channel 10 connected
 	AdcChanConfig1.Rank         = 1;
 	AdcChanConfig1.SamplingTime = ADC_SAMPLETIME_3CYCLES;
 	AdcChanConfig1.Offset       = 0;
-
-	AdcChanConfig2.Channel = ADC_CHANNEL_13;
+	
+	AdcChanConfig2.Channel = ADC_CHANNEL_13;                     //PC3 has Analog Channel 13 connected
 	AdcChanConfig2.Rank         = 1;
 	AdcChanConfig2.SamplingTime = ADC_SAMPLETIME_3CYCLES;
 	AdcChanConfig2.Offset       = 0;
@@ -169,15 +150,11 @@ void s4575272_reg_joystick_init(){
 }
 
 //Generic function to read X or Y joystick value
-
 int s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput) {
 	if (AdcHandleInput.Instance == (ADC_TypeDef *)(ADC1_BASE)) {
 		return ADC1->DR;
 	} else if (AdcHandleInput.Instance == (ADC_TypeDef *)(ADC2_BASE)) {
 		return ADC2->DR;
 	}
-
-	///ADC1->DR or ADC2->DR
-	//AdcHadleInput.Instance == 
 }
 

@@ -13,6 +13,8 @@
  * EXTI3_IRQHandler() - Pushbutton EXTI Handler function
  * s4575272_reg_joystick_press_get() - Returns the value of the Joystick pushbutton press counter
  * s4575272_reg_joystick_press_reset() - Reset the Joystick event counter value to 0 
+ * s4575272_reg_joystick_init() - Initialise GPIO and ADC
+ * s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput) - Generic function to read X or Y joystick value
  *************************************************************** 
  */
 
@@ -26,10 +28,13 @@ extern void s4575272_reg_joystick_press_reset(void); //reset counter
 extern int s4575272_reg_joystick_press_get(void); //return counter value
 
 void s4575272_reg_joystick_init(void);
+int s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput);
+#define S4575272_REG_JOYSTICK_X_READ() s4575272_joystick_readxy(AdcHandle1)
+#define S4575272_REG_JOYSTICK_Y_READ() s4575272_joystick_readxy(AdcHandle2)
 
 //Calibrate (add offset) the Joystick X signal, so the stationary value is half the reference voltage
-#define S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET
+#define S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET 0
 //Calibrate (add offset) the tilt servo PWM signal, the Joystick Y signal, so the stationary value is half the reference voltage
-#define S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET
+#define S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET -112
 
 #endif
