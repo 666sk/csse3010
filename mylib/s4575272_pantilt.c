@@ -9,13 +9,16 @@
  * EXTERNAL FUNCTIONS 
  ***************************************************************
  * s4575272_reg_pantilt_init() - Initialise servo (GPIO, PWM etc) for PE11 and PE9
- * s4575272_pantilt_angle_write(int type, float angle) - Generic function for writing an angle (0 to +-70) (type is 0 for pan or 1 for tilt)
+ * s4575272_pantilt_angle_write(int type, int angle) - Generic function for writing an angle (0 to +-70) (type is 0 for pan or 1 for tilt)
  * s4575272_pantilt_read(int type) - Read the current pan servo angle (0 to +-70)(type is 0 for pan or 1 for tilt). 
  *************************************************************** 
  */
 #include "board.h"
 #include "processor_hal.h"
 #include "s4575272_pantilt.h"
+
+extern int PanAngle;
+extern int TiltAngle;
 
 #define TIMER_RUNNING_FREQ  		500000
 #define TIMER_20MS_PERIOD_TICKS		20000									
@@ -24,7 +27,6 @@
 #define S4575272_REG_PANTILT_PAN_READ() s4575272_pantilt_read(0)    //Access generic angle read function for the pan
 #define S4575272_REG_PANTILT_TILT_WRITE(angle) s4575272_pantilt_angle_write(1, angle)    //Access generic angle write function for the tilt
 #define S4575272_REG_PANTILT_TILT_READ() s4575272_pantilt_read(1)    //Access generic angle read function for the tilt
-
 
 //Initialise servo (GPIO, PWM etc) for PE11 and PE9
 void s4575272_reg_pantilt_init() {
@@ -74,28 +76,29 @@ void s4575272_reg_pantilt_init() {
 
 
 //Generic function for writing an angle (0 to +-90) (type is 0 for pan or 1 for tilt)
-void s4575272_pantilt_angle_write(int type, float angle) {
+void s4575272_pantilt_angle_write(int type, int angle) {
+
 	float DutyCircle;
-	DutyCircle = 1.0/18 * angle + 7.25;
-	if (DutyCircle < 2.25 || DutyCircle > 12.25) {
-		return;
-	}
-	if (type == 0) { //pan
+
+	if (type == 0) {
+
+		DutyCircle = 0.0551 * angle + 7.25 + S4575272_REG_PANTILT_PAN_90_CAL_OFFSET;
 		TIM1->CCR1 = PWM_PERCENT2TICKS_DUTYCYCLE(DutyCircle);
 	} else if (type == 1) {
+
+		DutyCircle = 0.054 * angle + 7.25 + S4575272_REG_PANTILT_TILT_90_CAL_OFFSET;
 		TIM1->CCR2 = PWM_PERCENT2TICKS_DUTYCYCLE(DutyCircle);
 	}
-
 }
 
 //Read the current pan servo angle (0 to +-70)(type is 0 for pan or 1 for tilt). Must use a register functions to accerss duty cycle value
-float s4575272_pantilt_read(int type) {
+int s4575272_pantilt_read(int type) {
+
 	if (type == 0) {
-		if (PanAngle > 45) {
-			GPIOC->ODR |= (0X01 << 6);
-		}
+
 		return PanAngle;
 	} else if (type == 1) {
+
 		return TiltAngle;
 	}
 }

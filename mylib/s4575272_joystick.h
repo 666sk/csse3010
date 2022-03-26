@@ -31,9 +31,8 @@ void s4575272_reg_joystick_init(void);
 int s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput);
 #define S4575272_REG_JOYSTICK_X_READ() s4575272_joystick_readxy(AdcHandle1)
 #define S4575272_REG_JOYSTICK_Y_READ() s4575272_joystick_readxy(AdcHandle2)
-
 //Calibrate (add offset) the Joystick X signal, so the stationary value is half the reference voltage
-#define S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET 0
+#define S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET 30
 //Calibrate (add offset) the tilt servo PWM signal, the Joystick Y signal, so the stationary value is half the reference voltage
 #define S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET -112
 

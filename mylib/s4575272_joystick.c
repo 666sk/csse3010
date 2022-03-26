@@ -151,9 +151,12 @@ void s4575272_reg_joystick_init(){
 
 //Generic function to read X or Y joystick value
 int s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput) {
+
 	if (AdcHandleInput.Instance == (ADC_TypeDef *)(ADC1_BASE)) {
+
 		return ADC1->DR;
 	} else if (AdcHandleInput.Instance == (ADC_TypeDef *)(ADC2_BASE)) {
+		
 		return ADC2->DR;
 	}
 }
