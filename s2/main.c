@@ -32,6 +32,7 @@ void s4575272_reg_lta1000g_init(void);
 int s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput);
 void s4575272_pantilt_angle_write(int type, int angle);
 int s4575272_pantilt_read(int type);
+void lta1000g_seg_set(int segment, unsigned char segment_value);
 void display_panangle(void);
 
 int main(void)
@@ -47,12 +48,12 @@ int main(void)
 		HAL_ADC_Start(&AdcHandle1); 
 		HAL_ADC_Start(&AdcHandle2); 
 		
-		PanAngle = 0.044 * (S4575272_REG_JOYSTICK_X_READ() + S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET) - 90;
-		TiltAngle = 0.044 * (S4575272_REG_JOYSTICK_Y_READ() + S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET) - 90;
+		PanAngle = 0.044 * (S4575272_REG_JOYSTICK_X_READ() + S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET);
+		TiltAngle = 0.044 * (S4575272_REG_JOYSTICK_Y_READ() + S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET);
 		
 		S4575272_REG_PANTILT_PAN_WRITE(S4575272_REG_PANTILT_PAN_READ());
 		S4575272_REG_PANTILT_TILT_WRITE(S4575272_REG_PANTILT_TILT_READ());
-		//display_panangle();
+		display_panangle();
 
 		//debug_log("adcX adcY %d %d\n\r",adcx,adcy);
 
@@ -67,41 +68,17 @@ void hardware_init(void) {
 }
 
 void display_panangle(){
-	switch(PanAngle/20) {
 
-		case -4: //bu neng yong loop a
-			while(PanAngle/20 == -4) {
-				GPIOC->ODR |= (0X01 << 6);
-			}
-		break;
+	for (int i = 1; i <= 9; i++) {    //start lightint 1st led from 20 degrees
 
-		case -3:
-			while(PanAngle/20 == -3){
-				GPIOB->ODR |= (0X01 << 15);
-			}		
-		break;
+		if (i == PanAngle/20) {
 
-		case -2:
-			while (PanAngle/20 == -2){
-				GPIOB->ODR |= (0X01 << 12);
-			}
-		break;
+			lta1000g_seg_set(i, '1');
+		} else {
 
-		case 0:
-			while (PanAngle/20 == 0){
-				GPIOB->ODR |= (0X01 << 15);
-			}
-		break;
+			lta1000g_seg_set(i, '0');
+		}
 	}
-	// if (PanAngle < -50){
-	// 	GPIOC->ODR |= (0X01 << 6);
-	// } else if (PanAngle < -50) {
-	// 	GPIOB->ODR |= (0X01 << 15);
-	// } else if (PanAngle < -30) {
-	// 	GPIOB->ODR |= (0X01 << 13);
-	// } else if(PanAngle < -10) {
-	// 	GPIOB->ODR |= (0X01 << 12);
-	// }
 }
 
 

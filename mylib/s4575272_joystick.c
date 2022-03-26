@@ -96,8 +96,8 @@ void s4575272_reg_joystick_init(){
 
 	GPIOC->MODER &= ~(0xC3 << (0 * 2));       //Clear bits for MODER
 	GPIOC->MODER |= (0xC3 << (0 * 2));		  //Set bits for Analog input mode
-	GPIOC->OSPEEDR &= ~(0xC3<<(0 * 2));
-	GPIOC->OSPEEDR |= (0x82<<(0 * 2));	      // Fast speed
+	GPIOC->OSPEEDR &= ~(0xC3 << (0 * 2));
+	GPIOC->OSPEEDR |= (0x82 << (0 * 2));	      // Fast speed
 	GPIOC->PUPDR &= ~(0xC3 << (0 * 2));		  //Clear bits for no push/pull
 
 	__ADC1_CLK_ENABLE();						//Enable ADC1 clock

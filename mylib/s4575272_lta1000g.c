@@ -95,67 +95,22 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
     case 0:
 
       if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 4);
+        GPIOC->ODR &= ~(0X01 << 6);
       } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 4);
+        GPIOC->ODR |= (0X01 << 6);
       }
       return;
     
     case 1:
 
       if (segment_value == '0') {
-        GPIOA->ODR &= ~(0X01 << 4);
+        GPIOB->ODR &= ~(0X01 << 15);
       } else if (segment_value == '1') {
-        GPIOA->ODR |= (0X01 << 4);
+        GPIOB->ODR |= (0X01 << 15);
       }
       return;
       
     case 2:
-
-      if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 3);
-      } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 3);
-      }
-      return;
-
-    case 3:
-
-      if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 5);
-      } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 5);
-      }
-      return;
-
-    case 4:
-
-      if (segment_value == '0') {
-        GPIOC->ODR &= ~(0X01 << 7);
-      } else if (segment_value == '1') {
-        GPIOC->ODR |= (0X01 << 7);
-      }
-      return;
-
-    case 5:
-
-      if (segment_value == '0') {
-        GPIOA->ODR &= ~(0X01 << 15);
-      } else if (segment_value == '1') {
-        GPIOA->ODR |= (0X01 << 15);
-      }
-      return;
-
-    case 6:
-
-      if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 12);
-      } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 12);
-      }
-      return;
-
-    case 7:
 
       if (segment_value == '0') {
         GPIOB->ODR &= ~(0X01 << 13);
@@ -164,22 +119,66 @@ void lta1000g_seg_set(int segment, unsigned char segment_value){
       }
       return;
 
+    case 3:
+
+      if (segment_value == '0') {
+        GPIOB->ODR &= ~(0X01 << 12);
+      } else if (segment_value == '1') {
+        GPIOB->ODR |= (0X01 << 12);
+      }
+      return;
+
+    case 4:      
+      if (segment_value == '0') {
+        GPIOA->ODR &= ~(0X01 << 15);
+      } else if (segment_value == '1') {
+        GPIOA->ODR |= (0X01 << 15);
+      }
+      return;
+
+    case 5:
+
+      if (segment_value == '0') {
+        GPIOC->ODR &= ~(0X01 << 7);
+      } else if (segment_value == '1') {
+        GPIOC->ODR |= (0X01 << 7);
+      }
+      return;
+
+    case 6:
+
+      if (segment_value == '0') {
+        GPIOB->ODR &= ~(0X01 << 5);
+      } else if (segment_value == '1') {
+        GPIOB->ODR |= (0X01 << 5);
+      }
+      return;
+
+    case 7:
+      if (segment_value == '0') {
+        GPIOB->ODR &= ~(0X01 << 3);
+      } else if (segment_value == '1') {
+        GPIOB->ODR |= (0X01 << 3);
+      }
+      return;
+
     case 8:
 
       if (segment_value == '0') {
-        GPIOB->ODR &= ~(0X01 << 15);
+        GPIOA->ODR &= ~(0X01 << 4);
       } else if (segment_value == '1') {
-        GPIOB->ODR |= (0X01 << 15);
+        GPIOA->ODR |= (0X01 << 4);
       }
       return;
 
     case 9:
-    
+
       if (segment_value == '0') {
-        GPIOC->ODR &= ~(0X01 << 6);
+        GPIOB->ODR &= ~(0X01 << 4);
       } else if (segment_value == '1') {
-        GPIOC->ODR |= (0X01 << 6);
+        GPIOB->ODR |= (0X01 << 4);
       }
       return;
+    
   }
 }

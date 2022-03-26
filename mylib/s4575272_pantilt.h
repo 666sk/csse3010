@@ -23,8 +23,8 @@ extern int TiltAngle;
 #define S4575272_REG_PANTILT_PAN_READ() s4575272_pantilt_read(0)
 #define S4575272_REG_PANTILT_TILT_WRITE(angle) s4575272_pantilt_angle_write(1, angle)
 #define S4575272_REG_PANTILT_TILT_READ() s4575272_pantilt_read(1)
-#define S4575272_REG_PANTILT_PAN_90_CAL_OFFSET  0.12
-#define S4575272_REG_PANTILT_TILT_90_CAL_OFFSET -0.18
+#define S4575272_REG_PANTILT_PAN_90_CAL_OFFSET  2.38    //Calibrate the pan angle to centre at 90 degrees
+#define S4575272_REG_PANTILT_TILT_90_CAL_OFFSET 2.03    //Calibrate the tilt angle to centre at 90 degrees
 
 void s4575272_reg_pantilt_init();
 void s4575272_pantilt_angle_write(int type, int angle);

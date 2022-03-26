@@ -21,8 +21,10 @@ extern int PanAngle;
 extern int TiltAngle;
 
 #define TIMER_RUNNING_FREQ  		500000
-#define TIMER_20MS_PERIOD_TICKS		20000									
-#define PWM_PERCENT2TICKS_DUTYCYCLE(value)	(value*TIMER_20MS_PERIOD_TICKS/100)
+#define TIMER_20MS_PERIOD_TICKS		20000
+#define S4575272_REG_PANTILT_PAN_90_CAL_OFFSET  2.38
+#define S4575272_REG_PANTILT_TILT_90_CAL_OFFSET 2.03
+#define PWM_PERCENT2TICKS_DUTYCYCLE(value)	(value * TIMER_20MS_PERIOD_TICKS / 100)
 #define S4575272_REG_PANTILT_PAN_WRITE(angle) s4575272_pantilt_angle_write(0, angle)  //Access generic angle write function for the pan
 #define S4575272_REG_PANTILT_PAN_READ() s4575272_pantilt_read(0)    //Access generic angle read function for the pan
 #define S4575272_REG_PANTILT_TILT_WRITE(angle) s4575272_pantilt_angle_write(1, angle)    //Access generic angle write function for the tilt
@@ -52,13 +54,13 @@ void s4575272_reg_pantilt_init() {
 	//PE9
     TIM1->CCR1 = PWM_PERCENT2TICKS_DUTYCYCLE(7.25);  //Initialise pulse width to 7.25% duty cycle for pan
     TIM1->CCMR1 &= ~(TIM_CCMR1_OC1M); 	// Clear OC2M (Channel 1) 
-	TIM1->CCMR1 |= (0x6 << 4); 		// Enable PWM Mode 1, upcounting, on Channel 1
+	TIM1->CCMR1 |= (0x6 << 4); 	// Enable PWM Mode 1, upcounting, on Channel 1
 	TIM1->CCMR1 |= (TIM_CCMR1_OC1PE); 	// Enable output preload bit for channel 1 
 	
 	TIM1->CR1  |= (TIM_CR1_ARPE); 	// Set Auto-Reload Preload Enable 
 	TIM1->CCER |= TIM_CCER_CC1E; 	// Set CC1E Bit 
 	TIM1->CCER &= ~TIM_CCER_CC2NE; 	// Clear CC2NE Bit for active high output 
-    TIM1->BDTR |= TIM_BDTR_MOE | TIM_BDTR_OSSR | TIM_BDTR_OSSI; 
+    //TIM1->BDTR |= TIM_BDTR_MOE | TIM_BDTR_OSSR | TIM_BDTR_OSSI; 
 
 	//PE11
 	TIM1->CCR2 = PWM_PERCENT2TICKS_DUTYCYCLE(7.25);	//Initialise pulse width to 7.25% duty cycle for tilt
@@ -66,7 +68,7 @@ void s4575272_reg_pantilt_init() {
 	TIM1->CCMR1 |= (0x6 << 12); 		// Enable PWM Mode 1, upcounting, on Channel 2 
 	TIM1->CCMR1 |= (TIM_CCMR1_OC2PE); 	// Enable output preload bit for channel 2 
 	
-	TIM1->CR1  |= (TIM_CR1_ARPE); 	// Set Auto-Reload Preload Enable 
+	//TIM1->CR1  |= (TIM_CR1_ARPE); 	// Set Auto-Reload Preload Enable 
 	TIM1->CCER |= TIM_CCER_CC2E; 	// Set CC2E Bit 
 	TIM1->CCER &= ~TIM_CCER_CC2NE; 	// Clear CC2NE Bit for active high output 
     TIM1->BDTR |= TIM_BDTR_MOE | TIM_BDTR_OSSR | TIM_BDTR_OSSI; 
@@ -82,11 +84,11 @@ void s4575272_pantilt_angle_write(int type, int angle) {
 
 	if (type == 0) {
 
-		DutyCircle = 0.0551 * angle + 7.25 + S4575272_REG_PANTILT_PAN_90_CAL_OFFSET;
+		DutyCircle = 0.0551 * angle + S4575272_REG_PANTILT_PAN_90_CAL_OFFSET;
 		TIM1->CCR1 = PWM_PERCENT2TICKS_DUTYCYCLE(DutyCircle);
 	} else if (type == 1) {
 
-		DutyCircle = 0.054 * angle + 7.25 + S4575272_REG_PANTILT_TILT_90_CAL_OFFSET;
+		DutyCircle = 0.054 * angle + S4575272_REG_PANTILT_TILT_90_CAL_OFFSET;
 		TIM1->CCR2 = PWM_PERCENT2TICKS_DUTYCYCLE(DutyCircle);
 	}
 }
