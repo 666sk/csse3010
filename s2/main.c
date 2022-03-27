@@ -42,7 +42,7 @@ int main(void)
 	BRD_debuguart_init();  //Initialise UART for debug log output
 
 	// Main Processing Loop
-	while (1)
+	while (1) 
 	{	
 		// Start ADC conversion for both ADC1 and ADC2
 		HAL_ADC_Start(&AdcHandle1); 
