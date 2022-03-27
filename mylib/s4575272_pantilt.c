@@ -24,7 +24,7 @@ extern int TiltAngle;
 #define TIMER_20MS_PERIOD_TICKS		20000
 #define S4575272_REG_PANTILT_PAN_90_CAL_OFFSET  2.38
 #define S4575272_REG_PANTILT_TILT_90_CAL_OFFSET 2.03
-#define PWM_PERCENT2TICKS_DUTYCYCLE(value)	(value * TIMER_20MS_PERIOD_TICKS / 100)
+#define PWM_PERCENT2TICKS_DUTYCYCLE(value)	(value * TIMER_20MS_PERIOD_TICKS / 100)    //Convert Duty circle percentage to ticks in CCR
 #define S4575272_REG_PANTILT_PAN_WRITE(angle) s4575272_pantilt_angle_write(0, angle)  //Access generic angle write function for the pan
 #define S4575272_REG_PANTILT_PAN_READ() s4575272_pantilt_read(0)    //Access generic angle read function for the pan
 #define S4575272_REG_PANTILT_TILT_WRITE(angle) s4575272_pantilt_angle_write(1, angle)    //Access generic angle write function for the tilt

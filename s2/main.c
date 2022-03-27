@@ -48,28 +48,26 @@ int main(void)
 		HAL_ADC_Start(&AdcHandle1); 
 		HAL_ADC_Start(&AdcHandle2); 
 		
-		PanAngle = 0.044 * (S4575272_REG_JOYSTICK_X_READ() + S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET);
-		TiltAngle = 0.044 * (S4575272_REG_JOYSTICK_Y_READ() + S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET);
+		PanAngle = 0.044 * (S4575272_REG_JOYSTICK_X_READ() + S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET);    //Calculate the Pan Angle
+		TiltAngle = 0.044 * (S4575272_REG_JOYSTICK_Y_READ() + S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET);    //Calculate the TIlt Angle
 		
 		S4575272_REG_PANTILT_PAN_WRITE(S4575272_REG_PANTILT_PAN_READ());
 		S4575272_REG_PANTILT_TILT_WRITE(S4575272_REG_PANTILT_TILT_READ());
 		display_panangle();
-
-		//debug_log("adcX adcY %d %d\n\r",adcx,adcy);
-
 	}
 }
 
-
+//Initialise Joystick, Pantilt and LED 
 void hardware_init(void) {
 	s4575272_reg_joystick_init();
 	s4575272_reg_pantilt_init();
 	s4575272_reg_lta1000g_init();
 }
 
+//Display the Pan Angle on the LED Bar, Angles round down
 void display_panangle(){
 
-	for (int i = 1; i <= 9; i++) {    //start lightint 1st led from 20 degrees
+	for (int i = 1; i <= 9; i++) {    //start lighting 1st led from 20 degrees to the last led ending at 180 degrees
 
 		if (i == PanAngle/20) {
 
