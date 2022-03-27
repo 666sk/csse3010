@@ -48,12 +48,12 @@ int main(void)
 		HAL_ADC_Start(&AdcHandle1); 
 		HAL_ADC_Start(&AdcHandle2); 
 		
-		PanAngle = 0.044 * (S4575272_REG_JOYSTICK_X_READ() + S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET);    //Calculate the Pan Angle
-		TiltAngle = 0.044 * (S4575272_REG_JOYSTICK_Y_READ() + S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET);    //Calculate the TIlt Angle
+		PanAngle = 0.044 * (S4575272_REG_JOYSTICK_X_READ() + S4575272_REG_JOYSTICK_X_ZERO_CAL_OFFSET);    //Calbriate JOystickX and Calculate the Pan Angle
+		TiltAngle = 0.044 * (S4575272_REG_JOYSTICK_Y_READ() + S4575272_REG_JOYSTICK_Y_ZERO_CAL_OFFSET);    //Calbriate JoystickY and Calculate the TIlt Angle
 		
-		S4575272_REG_PANTILT_PAN_WRITE(S4575272_REG_PANTILT_PAN_READ());
-		S4575272_REG_PANTILT_TILT_WRITE(S4575272_REG_PANTILT_TILT_READ());
-		display_panangle();
+		S4575272_REG_PANTILT_PAN_WRITE(S4575272_REG_PANTILT_PAN_READ());   //Write the Pan Angle into the Pan module
+		S4575272_REG_PANTILT_TILT_WRITE(S4575272_REG_PANTILT_TILT_READ());    //Write the Tilt Angle into the Tilt module
+		display_panangle();    //Display the Pan Angle using LED Bar
 	}
 }
 
@@ -69,7 +69,7 @@ void display_panangle(){
 
 	for (int i = 1; i <= 9; i++) {    //start lighting 1st led from 20 degrees to the last led ending at 180 degrees
 
-		if (i == PanAngle/20) {
+		if (i == S4575272_REG_PANTILT_PAN_READ()/20) {
 
 			lta1000g_seg_set(i, '1');
 		} else {
