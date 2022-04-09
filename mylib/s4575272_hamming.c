@@ -1,8 +1,24 @@
+ /** 
+ **************************************************************
+ * @file mylib/s457527_hamming.c
+ * @author Kuang Sheng - 45752720
+ * @date 09/04/2022
+ * @brief mylib hamming encoder and decoder
+ * REFERENCE:  
+ ***************************************************************
+ * FUNCTIONS 
+ ***************************************************************
+ * s4575272_lib_hamming_byte_encode() - Return the 16bit encoded value of a byte
+ * s4575272_lib_hamming_hbyte_encode() - Internal function to Encode a half byte
+ * s4575272_lib_hamming_byte_decode() - Return the decoded half byte from a byte. Errors must be detected and corrected
+ * s4575272_lib_hamming_parity_error() - Return 1 if a parity error has occured, else 0
+ * s4575272_lib_hamming_bit_error() - Return 1 if a bit error has occured, else 0
+ *************************************************************** 
+ */
 
+#include "s4575272_hamming.h"
 #include "board.h"
 #include "processor_hal.h"
-
-unsigned char s4575272_lib_hamming_hbyte_encode(unsigned char in);
 
 //Return the 16bit encoded value of a byte
 unsigned short s4575272_lib_hamming_byte_encode(unsigned char input) {
@@ -75,7 +91,7 @@ unsigned char s4575272_lib_hamming_hbyte_encode(unsigned char in) {
 //Return the decoded half byte from a byte. Errors must be detected and corrected
 unsigned char s4575272_lib_hamming_byte_decode(unsigned char value) {
 	uint8_t origData;
-	uint8_t d3, d2, d1, d0, h2, h1, h0, p0, parity;
+	uint8_t d3, d2, d1, d0, h2, h1, h0, p0;
 	//debug_log("value = %u\n\r", value);
 
 	d3 = ((value & 0x80) >> 7);
@@ -90,33 +106,45 @@ unsigned char s4575272_lib_hamming_byte_decode(unsigned char value) {
 	//debug_log("d3, d2, d1, d0 = %u, %u, %u, %u\n\r", d3, d2, d1, d0); //70 54
 	parity = d3 ^ d2 ^ d1 ^ d0 ^ h2 ^ h1 ^ h0 ^ p0;
 
+	if (s4575272_lib_hamming_parity_error(parity)) {
+		p0 = !p0;
+	}
+
 	uint8_t s0 = d1 ^ d2 ^ d3 ^ h0;
 	uint8_t s1 = d0 ^ d2 ^ d3 ^ h1;
 	uint8_t s2 = d0 ^ d1 ^ d3 ^ h2;
 
 	switch(s0 | (s1 << 1) | (s2 << 2)) {
 		case 0:
+		bitError = 0;
 			break;
 		case 1:
 			h0 = !h0;
+			bitError = 1;
 			break;
 		case 2:
 			h1 = !h1;
+			bitError = 1;
 			break;
 		case 3:
 			d2 = !d2;
+			bitError = 1;
 			break;
 		case 4:
 			h2 = !h2;
+			bitError = 1;
 			break;
 		case 5:
 			d1 = !d1;
+			bitError = 1;
 			break;
 		case 6:
 			d0 = !d0;
+			bitError = 1;
 			break;
 		case 7:
 		    d3 = !d3;
+			bitError = 1;
 			break;
 	}
 
@@ -130,6 +158,14 @@ int s4575272_lib_hamming_parity_error(unsigned char value) {
 	if (value == 0) {
 		return 0;
 	} else {
+		return 1;
+	}
+}
+
+int s4575272_lib_hamming_bit_error() {
+	if (bitError == 0) {
+		return 0;
+	} else if (bitError == 1) {
 		return 1;
 	}
 }
