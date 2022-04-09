@@ -77,7 +77,6 @@ unsigned char s4575272_lib_hamming_hbyte_encode(unsigned char in) {
 	out = (h0 << 1) | (h1 << 2) | (h2 << 3) |
 		(d0 << 4) | (d1 << 5) | (d2 << 6) | (d3 << 7);
 
-	
 
 	/* calculate even parity bit */ 
 	for (z = 1; z < 8; z++)
@@ -92,8 +91,8 @@ unsigned char s4575272_lib_hamming_hbyte_encode(unsigned char in) {
 unsigned char s4575272_lib_hamming_byte_decode(unsigned char value) {
 	uint8_t origData;
 	uint8_t d3, d2, d1, d0, h2, h1, h0, p0;
-	//debug_log("value = %u\n\r", value);
 
+	//Extract data, hamming and parity bits
 	d3 = ((value & 0x80) >> 7);
 	d2 = ((value & 0x40) >> 6);
 	d1 = ((value & 0x20) >> 5);
@@ -103,20 +102,22 @@ unsigned char s4575272_lib_hamming_byte_decode(unsigned char value) {
 	h0 = ((value & 0x02) >> 1);
 	p0 = (value & 0x01);
 
-	//debug_log("d3, d2, d1, d0 = %u, %u, %u, %u\n\r", d3, d2, d1, d0); //70 54
 	parity = d3 ^ d2 ^ d1 ^ d0 ^ h2 ^ h1 ^ h0 ^ p0;
 
+	//Correct parity bit if there's a parity error
 	if (s4575272_lib_hamming_parity_error(parity)) {
 		p0 = !p0;
 	}
 
+	//Calculate syndrome
 	uint8_t s0 = d1 ^ d2 ^ d3 ^ h0;
 	uint8_t s1 = d0 ^ d2 ^ d3 ^ h1;
 	uint8_t s2 = d0 ^ d1 ^ d3 ^ h2;
 
+	//Correct data and hamming bits if there's error
 	switch(s0 | (s1 << 1) | (s2 << 2)) {
 		case 0:
-		bitError = 0;
+			bitError = 0;
 			break;
 		case 1:
 			h0 = !h0;
@@ -162,6 +163,7 @@ int s4575272_lib_hamming_parity_error(unsigned char value) {
 	}
 }
 
+//Return 1 if a bit error has occured, else 0
 int s4575272_lib_hamming_bit_error() {
 	if (bitError == 0) {
 		return 0;
