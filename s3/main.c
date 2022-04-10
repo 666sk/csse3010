@@ -25,6 +25,9 @@ void state_processing(int state, char inputChar1, char inputChar2);
 void state1_led_output(uint8_t codedWord1, uint8_t codedWord2);
 void state2_led_output(uint8_t decodedWord);
 void LED_turning_off(void);
+void s4575272_reg_irremote_init(void);
+void tui_callback(void);
+void TIM2_IRQHandler(void);
 
 unsigned char s4575272_lib_hamming_hbyte_encode(unsigned char in);
 unsigned short s4575272_lib_hamming_byte_encode(unsigned char input);
@@ -49,6 +52,7 @@ int main(void) {
     printFlag = 0;
 
     while(1) {
+
         pbGet = s4575272_reg_joystick_press_get() % 2;
 
         if ((HAL_GetTick() - prev_tick) >= 50) {
@@ -58,7 +62,7 @@ int main(void) {
                 if ((recvChar1 = BRD_debuguart_getc()) != '\0') {
                     collector = 1;
                     inputChar1 = recvChar1;
-                    debug_log("Character1: %c - ASCII Table value: %d\n\r", recvChar1, recvChar1);
+                    debug_log("InputWord1: %c - ASCII Table value: %d\n\r", recvChar1, recvChar1);
                 }
             }
 
@@ -67,7 +71,7 @@ int main(void) {
                     collector = 0;
                     printFlag = 0;
                     inputChar2 = recvChar2;
-                    debug_log("Character2: %c - ASCII Table value: %d\n\r", recvChar2, recvChar2);
+                    debug_log("InputWord1: %c - ASCII Table value: %d\n\r", recvChar2, recvChar2);
                 }
             }
 
@@ -114,10 +118,9 @@ void state_processing(int state, char inputChar1, char inputChar2) {
             codedWord2 = s4575272_lib_hamming_hbyte_encode(inputWord2);
 
             if (printFlag == 0){
-                debug_log("inputWord1 %d\n\r", inputWord1);
-                debug_log("inputWord2 %d\n\r", inputWord2);
-                debug_log("COdedWOrd1 %d\n\r", codedWord1);
-                debug_log("COdedWOrd2 %d\n\r", codedWord2);
+
+                debug_log("CodedWord1 %d\n\r", codedWord1);
+                debug_log("CodedWord2 %d\n\r", codedWord2);
                 printFlag = 1;
             }
 
@@ -130,14 +133,14 @@ void state_processing(int state, char inputChar1, char inputChar2) {
 
             if (printFlag == 0){
                 if (s4575272_lib_hamming_parity_error(parity)){
-                    debug_log("ok PARITY get and parity error occur\n\r");
+                    debug_log("There is a parity error occur!\n\r");
                 }
 
                 if (s4575272_lib_hamming_bit_error()) {
-                    debug_log("ok one-bit error get and error occur\n\r");
+                    debug_log("There is a one-bit error occur!\n\r");
                 }
 
-                debug_log("decodedword %d\n\r", decodedWord);
+                debug_log("Decodedword %d\n\r", decodedWord);
                 printFlag = 1;
             }
 
@@ -171,9 +174,11 @@ int fsm_processing(int current, char CH1, char CH2) {
                 nextState = S0;
             } else if (CH1 == 'D' && CH2 == 'D') {
                 LED_turning_off();
+                debug_log("Congrats we are in the Decode State!\n\r");
                 nextState = S2;
             } else if (CH1 == 'E' && CH2 == 'E') {
                 LED_turning_off();
+                debug_log("Congrats we are in the Encode State!\n\r");
                 nextState = S1;
             } else {
                 nextState = S1;
@@ -186,9 +191,11 @@ int fsm_processing(int current, char CH1, char CH2) {
                 nextState = S0;
             } else if (CH1 == 'E' && CH2 == 'E') {
                 LED_turning_off();
+                debug_log("Congrats we are in the Encode State!\n\r");
                 nextState = S1;
             } else if (CH1 == 'D' && CH2 == 'D') {  
                 LED_turning_off();
+                debug_log("Congrats we are in the Decode State!\n\r");
                 nextState = S2;
             } else {
                 nextState = S2;
@@ -206,6 +213,7 @@ void hardware_init(void) {
     s4575272_reg_lta1000g_init(); //Initialise GPIO pins for LED 
     s4575272_reg_joystick_pb_init(); //Initialise GPIO pins for joystick
 	BRD_LEDInit();		//Initialise LEDS
+    s4575272_reg_irremote_init();
 }
 
 //Display the encoded output in LED
