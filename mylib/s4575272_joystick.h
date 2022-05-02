@@ -21,6 +21,23 @@
 #ifndef __S4575272_JOYSTICK_H__
 #define __S4575272_JOYSTICK_H__
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
+
+
+// Task Priorities (Idle Priority is the lowest priority)
+#define OLEDTASK_PRIORITY		( tskIDLE_PRIORITY + 2 )
+
+// Task Stack Allocations (must be a multiple of the minimal stack size)
+#define OLEDTASK_STACK_SIZE		( configMINIMAL_STACK_SIZE * 2 )
+
+
+SemaphoreHandle_t pbSemaphore;	// Semaphore for pushbutton interrupt
+QueueHandle_t sendToLeftQ;
+QueueHandle_t sendToRightQ;
+
 static int joystick_press_counter;
 extern void s4575272_reg_joystick_pb_init(void); //Initialization function
 extern void s4575272_reg_joystick_pb_isr(void); //callback function

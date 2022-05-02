@@ -21,6 +21,10 @@
 #include "board.h"
 #include "processor_hal.h"
 #include "s4575272_joystick.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
 
 static uint32_t prevTime = 0;
 ADC_HandleTypeDef AdcHandle1,AdcHandle2;
@@ -40,7 +44,7 @@ extern void s4575272_reg_joystick_pb_init(){
   SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI3_PA;
 
   EXTI->FTSR |= EXTI_RTSR_TR3;  //enable falling edge
-  EXTI->RTSR |= EXTI_RTSR_TR3;  //enable rising edge
+  EXTI->RTSR &= ~EXTI_RTSR_TR3;  //disable rising edge
   EXTI->IMR |= EXTI_IMR_IM3;  //enable external interrupt
 
   //Enable priority 10 and interrupt callback.
@@ -51,13 +55,25 @@ extern void s4575272_reg_joystick_pb_init(){
 //The callback function that count how many times the button being pressed
 extern void s4575272_reg_joystick_pb_isr(void) {
   uint32_t currentTime;
-  currentTime = HAL_GetTick();
+  //currentTime = HAL_GetTick();
 
   //Debouncing process
-  if ((currentTime - prevTime) > 50) {
+  if ((HAL_GetTick() - prevTime) > 50) {
 
     if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
-      joystick_press_counter++;
+		
+		BaseType_t xHigherPriorityTaskWoken;
+
+		xHigherPriorityTaskWoken = pdFALSE;
+		if (pbSemaphore != NULL) {	// Check if semaphore exists 
+			xSemaphoreGiveFromISR( pbSemaphore, &xHigherPriorityTaskWoken );		// Send semaphore from ISR
+		}
+
+		// Perform context switching, if required.
+		portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+
+
+        //joystick_press_counter++;
     }
 
   prevTime = HAL_GetTick();
@@ -161,3 +177,53 @@ int s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput) {
 	}
 }
 
+
+
+/****************************************************************/
+
+// SemaphoreHandle_t pbSemaphore;	// Semaphore for pushbutton interrupt
+
+void s4575272TaskJoystick(void) {
+
+	pbSemaphore = xSemaphoreCreateBinary();
+	s4575272_reg_joystick_pb_init();
+	
+	uint8_t mode = 1;
+	sendToLeftQ = xQueueCreate(10, sizeof(mode));
+	sendToRightQ = xQueueCreate(10, sizeof(mode));
+
+	for (;;) {
+		
+		if (pbSemaphore != NULL) {	// Check if semaphore exists
+
+			if( xSemaphoreTake( pbSemaphore, 10 ) == pdTRUE ) {
+				
+				if (sendToLeftQ != NULL) {
+					xQueueSendToFront(sendToLeftQ, ( void * ) &mode, ( portTickType ) 10 );
+				}
+				if (sendToRightQ != NULL) {
+					xQueueSendToFront(sendToRightQ, ( void * ) &mode, ( portTickType ) 10 );
+				}
+				
+			}
+		}
+
+		// Wait for 10ms
+		vTaskDelay(10);
+	}
+}
+
+
+void s4575272_tsk_joystick_init(void) {
+	portDISABLE_INTERRUPTS();
+
+	xTaskCreate(
+        (void *) &s4575272TaskJoystick,     // Function that implements the task
+        (const signed char *) "JoystickTask",   // Text name for the task
+        OLEDTASK_STACK_SIZE * 6,            // Stack size in words, not bytes
+        NULL,                           // No Parameter needed
+        OLEDTASK_PRIORITY + 4,              // Priority at which the task is created
+        NULL);                          // Used to pass out the created task's handle
+
+	portENABLE_INTERRUPTS();
+}

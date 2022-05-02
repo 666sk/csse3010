@@ -1,36 +1,22 @@
+ /** 
+ **************************************************************
+ * @file mylib/s457527_irremote.c
+ * @author Kuang Sheng - 45752720
+ * @date 07/03/2022
+ * @brief mylib irremote driver
+ * REFERENCE:  
+ ***************************************************************
+ * EXTERNAL FUNCTIONS 
+ ***************************************************************
+ * void s4575272_reg_irremote_init(void) - Initialize the IR receiver hardware
+ * void s4575272_reg_irremote_recv(void) - function for processing the received input waveform
+ * int s4575272_reg_irremote_readkey(char* value) - Check if a key has been detected. Return 1 if detected and set in value parameter.
+ *************************************************************** 
+ */
 #include "board.h"
 #include "processor_hal.h"
 #include "debug_log.h"
-//#include "stdutils.h"
-
-#define TIMER_COUNTER_FREQ  500000           //Frequency (in Hz)
-//#define TIMER_1SECOND_PERIOD    50000       //Period for 1s (in count ticks)
-#define TIMER_1SECOND_PERIOD   1000  //2ms
-
-float msCount = 0;
-// uint16_t msCount = 0;
-uint8_t timerValue;
-int pulseCount = 0;
-uint32_t bitPattern = 0, newKey = 0;
-
-
-
-//Initialize the IR receiver hardware
-void s4575272_reg_irremote_init(void);
-
-//function for processing the received input waveform
-void s4575272_reg_irremote_recv(void);
-
-//Internal flag set if a key is pressed
-int keyPressedFlag = 0;
-
-//Internal buffer to store the lastest key that has been pressed
-char keyPressedValue;
-
-//Check if a key has been detected. Return 1 if detected and set in value parameter.
-int s4575272_reg_irremote_readkey(char* value);  //value shi buffer
-
-
+#include "s4575272_irremote.h"
 
 //PB10
 void s4575272_reg_irremote_init(void) {
@@ -82,6 +68,7 @@ void s4575272_reg_irremote_init(void) {
 	// 11 = both edges
 	//TIM2->CCER |= (TIM_CCER_CC3NP | TIM_CCER_CC3P);		// Both rising and falling edges.
     TIM2->CCER |= (TIM_CCER_CC3P);  //falling edge
+    //TIM2->CCER |= (TIM_CCER_CC3NP);  //rising edge
 
     // Program the input prescaler
 	// To capture each valid transition, set the input prescaler to zero;
@@ -129,7 +116,6 @@ void s4575272_reg_irremote_recv(void) {
 
 	// Check if input capture has taken place 
 	if((TIM2->SR & TIM_SR_CC3IF) == TIM_SR_CC3IF) { 
-        keyPressedFlag = 1;
         timerValue = msCount;
         msCount = 0;
         pulseCount ++;
@@ -143,28 +129,19 @@ void s4575272_reg_irremote_recv(void) {
             
             if(timerValue >= 2) {
                 bitPattern |= (1<<(31-pulseCount));
-                //debug_log("logic '1'  timervalue %d\n\r", timerValue);
             } else {
-                //debug_log("logic '0'  timervalue %d\n\r", timerValue);
                 bitPattern |= (0<<(31-pulseCount));
             }
         } else if (pulseCount >= 32) {
-            newKey = bitPattern;
+            keyPressedValue = bitPattern;
             debug_log("PULSECOUNT %d\n\r", pulseCount);
             pulseCount = 0;
             debug_log("key is %d\n\r", newKey);
-            // newKey = 0;
-            keyPressedFlag = 0;
+            keyPressedFlag = s4575272_reg_irremote_readkey(keyPressedValue);
+            newKey = 0;
         }
-        // if (newKey & (0xFF4AB5) == (0xFF4AB5)) {
-        //     BRD_LEDBlueToggle();
-        //     debug_log("newKey = %x!!\n\r", newKey);
-            
-        // }
-		// BRD_LEDGreenToggle();	// If input caputre occurred, Toggle LED 
-
+        
 		current = TIM2->CCR3;  // Reading CCR1 clears CC4IF
-
 	}
 }
 
@@ -178,5 +155,12 @@ void TIM2_IRQHandler(void)
 }
 
 int s4575272_reg_irremote_readkey(char* value) {
-    return 0;
+
+    if (value) {
+    
+        return 1;
+    } else {
+        return 0;
+    }
 }
+
