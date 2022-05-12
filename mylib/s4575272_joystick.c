@@ -58,22 +58,22 @@ extern void s4575272_reg_joystick_pb_isr(void) {
   //currentTime = HAL_GetTick();
 
   //Debouncing process
-  if ((HAL_GetTick() - prevTime) > 50) {
+  if ((HAL_GetTick() - prevTime) > 200) {
 
     if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
 		
-		BaseType_t xHigherPriorityTaskWoken;
+		// BaseType_t xHigherPriorityTaskWoken;
 
-		xHigherPriorityTaskWoken = pdFALSE;
-		if (pbSemaphore != NULL) {	// Check if semaphore exists 
-			xSemaphoreGiveFromISR( pbSemaphore, &xHigherPriorityTaskWoken );		// Send semaphore from ISR
-		}
+		// xHigherPriorityTaskWoken = pdFALSE;
+		// if (pbSemaphore != NULL) {	// Check if semaphore exists 
+		// 	xSemaphoreGiveFromISR( pbSemaphore, &xHigherPriorityTaskWoken );		// Send semaphore from ISR
+		// }
 
-		// Perform context switching, if required.
-		portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+		// // Perform context switching, if required.
+		// portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 
 
-        //joystick_press_counter++;
+        joystick_press_counter++;
     }
 
   prevTime = HAL_GetTick();
