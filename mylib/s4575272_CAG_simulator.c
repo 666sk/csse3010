@@ -17,29 +17,34 @@
 
 void s4575272TaskCAG_Simulator(void) {
     BRD_LEDInit();
-    //grid[16][64] = 0;
+    grid[16][64] = 0;
     caMessage_t msgToDisplay;
     simulatorMsgQ = xQueueCreate(10, sizeof(msgToDisplay));
 
     for (;;) {
-        if (simulatorMsgQ != NULL) {
-            BRD_LEDGreenOn();
-            msgToDisplay.cell_x = 0;
-            xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToDisplay, ( portTickType ) 10 );
+
+        for (int i =0;i<15;i++) {
+            grid[i][20] = 1;
         }
         
-        BRD_LEDBlueToggle();
-        vTaskDelay(1000);
+        if (simulatorMsgQ != NULL) {
+            
+            if (xQueueReceive(simulatorMsgQ, &msgToDisplay, 10)) {
+                BRD_LEDGreenOn();
+            }
+        }
+        
+        vTaskDelay(500);
     }
 }
 
 
 void s4575272_tsk_CAG_simulator_init(void) {
-
+    
     xTaskCreate(
         (void *) &s4575272TaskCAG_Simulator,     // Function that implements the task
         (const signed char *) "CAGSimulatorTask",   // Text name for the task
-        CAG_SIMULATOR_TASK_STACK_SIZE*8,            // Stack size in words, not bytes
+        CAG_SIMULATOR_TASK_STACK_SIZE * 5,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
         CAG_SIMULATOR_TASK_PRIORITY+1,              // Priority at which the task is created
         NULL);  

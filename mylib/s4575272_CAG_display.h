@@ -15,15 +15,9 @@
 #ifndef __S4575272_CAG_display_H__
 #define __S4575272_CAG_display_H__
 
-#include "board.h"
-#include "processor_hal.h"
 #include "oled_pixel.h"
 #include "oled_string.h"
 #include "fonts.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "semphr.h"
 #include "s4575272_oled.h"
 #include "s4575272_CAG_simulator.h"
 

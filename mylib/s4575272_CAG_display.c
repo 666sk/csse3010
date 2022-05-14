@@ -25,7 +25,7 @@ void s4575272_tsk_CAG_display_init(void) {
     xTaskCreate(
         (void *) &s4575272TaskCAG_Display,     // Function that implements the task
         (const signed char *) "TaskCAG_Display",   // Text name for the task
-        OLEDTASK_STACK_SIZE*10,            // Stack size in words, not bytes
+        OLEDTASK_STACK_SIZE*5,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
         OLEDTASK_PRIORITY,              // Priority at which the task is created
         NULL);                          // Used to pass out the created task's handle
@@ -39,25 +39,24 @@ void s4575272TaskCAG_Display(void) {
     caMessage_t msgFromSimulator;
 
     int displayGrid[16][64] = {0};
-    simulatorMsgQ = xQueueCreate(10, sizeof(msgFromSimulator));
 
     for (;;) {
 
         ssd1306_Fill(Black);    //Clear Screen
-        ssd1306_SetCursor(10,12);
-        
-        if (xQueueReceive(simulatorMsgQ, &msgFromSimulator, 10)) {
-
-            BRD_LEDRedOn();
-            // ssd1306_DrawPixel(2*j, 2*i, SSD1306_WHITE);
-            // ssd1306_DrawPixel(2*j, 2*i + 1, SSD1306_WHITE);
-            // ssd1306_DrawPixel(2*j + 1, 2*i, SSD1306_WHITE);
-            // ssd1306_DrawPixel(2*j + 1, 2*i + 1, SSD1306_WHITE);
-            // ssd1306_UpdateScreen();
-        } else {
-            ssd1306_WriteString("Nothing re!", Font_6x8, SSD1306_WHITE);
-            ssd1306_UpdateScreen();
+        //ssd1306_SetCursor(10,12);
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 64; j++) {
+                if (grid[i][j]) {
+                    BRD_LEDRedOn();
+                    ssd1306_DrawPixel(2*j, 2*i, SSD1306_WHITE);
+                    ssd1306_DrawPixel(2*j, 2*i + 1, SSD1306_WHITE);
+                    ssd1306_DrawPixel(2*j + 1, 2*i, SSD1306_WHITE);
+                    ssd1306_DrawPixel(2*j + 1, 2*i + 1, SSD1306_WHITE);
+                    
+                }
+            }
         }
-		vTaskDelay(200);
+        ssd1306_UpdateScreen();
+		vTaskDelay(2);
 	}
 }
