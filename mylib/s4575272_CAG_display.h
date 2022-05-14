@@ -25,8 +25,12 @@
 #include "queue.h"
 #include "semphr.h"
 #include "s4575272_oled.h"
+#include "s4575272_CAG_simulator.h"
 
+QueueHandle_t displayMsgQ;
 
 void s4575272_reg_oled_init(void);
+void s4575272_tsk_CAG_display_init(void);
+void s4575272TaskCAG_Display(void);
 
 #endif

@@ -32,16 +32,23 @@
 #define BEACON_OSCILLATOR 0x32
 #define GLIDER_SPACESHIP 0x40
 
-#define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 2 )
+#define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 8 )
 #define CAG_SIMULATOR_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
 
 typedef struct caMessage {
+    
     int type;
     int cell_x;
     int cell_y;
 } caMessage_t;
 
+QueueHandle_t simulatorMsgQ;
+
+int grid[16][64];
+
+
 void s4575272_tsk_CAG_simulator_init(void);
 void s4575272TaskCAG_Simulator(void);
+int nbr_count(int grid[16][64], int i, int j);
 
 #endif
