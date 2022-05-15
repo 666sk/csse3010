@@ -8,7 +8,8 @@
  ***************************************************************
  * EXTERNAL FUNCTIONS 
  ***************************************************************
- * 
+ * s4575272_tsk_CAG_display_init(void) - Initialise the CAG Display task
+ * s4575272TaskCAG_Display(void) - The task of displaying the simulation
  *************************************************************** 
  */
 

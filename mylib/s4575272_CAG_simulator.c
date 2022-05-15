@@ -8,19 +8,20 @@
  ***************************************************************
  * EXTERNAL FUNCTIONS 
  ***************************************************************
- * 
+ * s4575272_tsk_CAG_simulator_init(void) - The task of simulating the game of life
+ * s4575272TaskCAG_Simulator(void) - Initialise the CAG Simulator task
+ * nbr_count(int grid[16][64], int i, int j) - Count how many neighbours of a cell
  *************************************************************** 
  */
 
 #include "s4575272_CAG_simulator.h"
 
-
+//The task of simulating the game of life
 void s4575272TaskCAG_Simulator(void) {
     BRD_LEDInit();
-    grid[16][64] = 0;
-    int nbr_grid[16][64];
+    grid[16][64] = 0;  //Initialise the global grid
+    int nbr_grid[16][64];   
     nbr_grid[16][64] = 0;
-    //int nbr_count = 0;
     int x,y;
 
     caMessage_t msgFromGrid;
@@ -31,18 +32,25 @@ void s4575272TaskCAG_Simulator(void) {
     for (;;) {
 
         for (y = 0; y < 16; y++) {
+
+            //Store the info of neighbour number of each cell
             for (x = 0; x < 64; x++) {
+
                 nbr_grid[y][x] = nbr_count(grid, y, x);
             }
         }
         
         for (y = 0; y < 16; y++) {
+
             for (x = 0; x < 64; x++) {
-                if (grid[y][x]) {
+            
+                if (grid[y][x]) {  //if the cell is alive
+            
                     if (nbr_grid[y][x] <= 1 || nbr_grid[y][x] >= 4) {
                         grid[y][x] = 0;
                     } 
-                } else {
+                } else {    //if the cell is dead(no alive cell)
+            
                     if (nbr_grid[y][x] == 3) {
                         grid[y][x] = 1;
                     }
@@ -55,8 +63,9 @@ void s4575272TaskCAG_Simulator(void) {
         //if (xActivatedMember == simulatorMsgQ) { 
                       
             if (xQueueReceive(simulatorMsgQ, &msgFromGrid, 10)) {
+
                 if (msgFromGrid.type == 0x11) {
-                    BRD_LEDGreenOn();
+                    BRD_LEDGreenOn();  //test if received for now
                 }
                 
             }
@@ -66,13 +75,13 @@ void s4575272TaskCAG_Simulator(void) {
     }
 }
 
-
+//Initialise the CAG Simulator task
 void s4575272_tsk_CAG_simulator_init(void) {
     
     xTaskCreate(
         (void *) &s4575272TaskCAG_Simulator,     // Function that implements the task
         (const signed char *) "CAGSimulatorTask",   // Text name for the task
-        CAG_SIMULATOR_TASK_STACK_SIZE * 5,            // Stack size in words, not bytes
+        CAG_SIMULATOR_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
         CAG_SIMULATOR_TASK_PRIORITY+1,              // Priority at which the task is created
         NULL);  
@@ -80,7 +89,6 @@ void s4575272_tsk_CAG_simulator_init(void) {
 }
 
 //Count how many neighbours of a cell
-
 int nbr_count(int grid[16][64], int i, int j) {
     int nbr_number = 0;
 

@@ -8,7 +8,9 @@
  ***************************************************************
  * EXTERNAL FUNCTIONS 
  ***************************************************************
- * 
+ * s4575272_tsk_CAG_simulator_init(void) - The task of simulating the game of life
+ * s4575272TaskCAG_Simulator(void) - Initialise the CAG Simulator task
+ * nbr_count(int grid[16][64], int i, int j) - Count how many neighbours of a cell
  *************************************************************** 
  */
 
