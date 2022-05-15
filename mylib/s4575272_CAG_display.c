@@ -44,10 +44,11 @@ void s4575272TaskCAG_Display(void) {
 
         ssd1306_Fill(Black);    //Clear Screen
         //ssd1306_SetCursor(10,12);
+        BRD_LEDRedOn();
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 64; j++) {
                 if (grid[i][j]) {
-                    BRD_LEDRedOn();
+                    
                     ssd1306_DrawPixel(2*j, 2*i, SSD1306_WHITE);
                     ssd1306_DrawPixel(2*j, 2*i + 1, SSD1306_WHITE);
                     ssd1306_DrawPixel(2*j + 1, 2*i, SSD1306_WHITE);

@@ -18,23 +18,51 @@
 void s4575272TaskCAG_Simulator(void) {
     BRD_LEDInit();
     grid[16][64] = 0;
-    caMessage_t msgToDisplay;
-    simulatorMsgQ = xQueueCreate(10, sizeof(msgToDisplay));
+    int nbr_grid[16][64];
+    nbr_grid[16][64] = 0;
+    //int nbr_count = 0;
+    int x,y;
+
+    caMessage_t msgFromGrid;
+    xQueueSet = xQueueCreateSet(sizeof(msgFromGrid)+10);
+    simulatorMsgQ = xQueueCreate(10, sizeof(msgFromGrid));
+    xQueueAddToSet(simulatorMsgQ, xQueueSet);
 
     for (;;) {
 
-        for (int i =0;i<15;i++) {
-            grid[i][20] = 1;
-        }
-        
-        if (simulatorMsgQ != NULL) {
-            
-            if (xQueueReceive(simulatorMsgQ, &msgToDisplay, 10)) {
-                BRD_LEDGreenOn();
+        for (y = 0; y < 16; y++) {
+            for (x = 0; x < 64; x++) {
+                nbr_grid[y][x] = nbr_count(grid, y, x);
             }
         }
         
-        vTaskDelay(500);
+        for (y = 0; y < 16; y++) {
+            for (x = 0; x < 64; x++) {
+                if (grid[y][x]) {
+                    if (nbr_grid[y][x] <= 1 || nbr_grid[y][x] >= 4) {
+                        grid[y][x] = 0;
+                    } 
+                } else {
+                    if (nbr_grid[y][x] == 3) {
+                        grid[y][x] = 1;
+                    }
+                }
+            }
+        }
+
+        xActivatedMember = xQueueSelectFromSet(xQueueSet, 20);
+
+        //if (xActivatedMember == simulatorMsgQ) { 
+                      
+            if (xQueueReceive(simulatorMsgQ, &msgFromGrid, 10)) {
+                if (msgFromGrid.type == 0x11) {
+                    BRD_LEDGreenOn();
+                }
+                
+            }
+        //}
+        
+        vTaskDelay(1);
     }
 }
 
@@ -87,7 +115,7 @@ int nbr_count(int grid[16][64], int i, int j) {
     }
 
     if (i < 15 && j >= 1) {
-        if (grid[i+1][j]) {
+        if (grid[i+1][j-1]) {
             nbr_number++;
         }
     }

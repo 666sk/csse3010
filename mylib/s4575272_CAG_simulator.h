@@ -43,6 +43,8 @@ typedef struct caMessage {
 } caMessage_t;
 
 QueueHandle_t simulatorMsgQ;
+QueueSetHandle_t xQueueSet;
+QueueSetMemberHandle_t xActivatedMember;
 
 int grid[16][64];
 
