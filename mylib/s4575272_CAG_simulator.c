@@ -19,9 +19,11 @@
 //The task of simulating the game of life
 void s4575272TaskCAG_Simulator(void) {
     BRD_LEDInit();
+
     grid[16][64] = 0;  //Initialise the global grid
     int nbr_grid[16][64];   
     nbr_grid[16][64] = 0;
+    
     uint8_t x, y;  //grid coordinates
     uint8_t cellSelect = 0;   //1 if select the cell
 
@@ -34,6 +36,7 @@ void s4575272TaskCAG_Simulator(void) {
     xQueueAddToSet(simulatorMsgQ, xQueueSet);
 
     for (;;) {
+        //BRD_LEDBlueOn();
 
         for (y = 0; y < 16; y++) {
 
@@ -64,42 +67,43 @@ void s4575272TaskCAG_Simulator(void) {
 
         //Event Group Bits Handling
         uxBits = xEventGroupWaitBits(keyctrlEventGroup, KEYCTRL_EVENT, pdTRUE, pdFALSE, 10);
-        if ((uxBits & EVT_KEY_W) != 0) {
+
+        if ((uxBits & EVT_KEY_W) != 0) {    //if 'W pressed' detected
             // Turn on LED
 			BRD_LEDGreenToggle();
             debug_log("Move UP!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_W);
-		} else if ((uxBits & EVT_KEY_A) != 0) {
+		} else if ((uxBits & EVT_KEY_A) != 0) {     //if 'A pressed' detected
 
             debug_log("Move LEFT!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_A);
-        } else if ((uxBits & EVT_KEY_S) != 0) {
+        } else if ((uxBits & EVT_KEY_S) != 0) {     //if 'S pressed' detected
             
             debug_log("Move DOWN!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_S);
-        } else if ((uxBits & EVT_KEY_D) != 0) {
+        } else if ((uxBits & EVT_KEY_D) != 0) {     //if 'D pressed' detected
             
             debug_log("Move RIGHT!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_D);
-        } else if ((uxBits & EVT_KEY_X) != 0) {
+        } else if ((uxBits & EVT_KEY_X) != 0) {     //if 'X pressed' detected
             
             debug_log("Select Cell!\n\r");
             cellSelect = 1;   //set the flag here for further implement
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_X);
-        } else if ((uxBits & EVT_KEY_Z) != 0) {
+        } else if ((uxBits & EVT_KEY_Z) != 0) {     //if 'Z pressed' detected
             
             debug_log("Unselect Cell!\n\r");
             cellSelect = 0;
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_Z);
-        } else if ((uxBits & EVT_KEY_P) != 0) {
+        } else if ((uxBits & EVT_KEY_P) != 0) {     //if 'P pressed' detected
             
             debug_log("Toggle Start/Stop!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_P);
-        } else if ((uxBits & EVT_KEY_O) != 0) {
+        } else if ((uxBits & EVT_KEY_O) != 0) {     //if 'O pressed' detected
             
             debug_log("Move to Origin!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_O);
-        } else if ((uxBits & EVT_KEY_C) != 0) {
+        } else if ((uxBits & EVT_KEY_C) != 0) {     //if 'C pressed' detected
             
             debug_log("Clear Display!\n\r");
             grid[16][64] = 0;
@@ -109,14 +113,24 @@ void s4575272TaskCAG_Simulator(void) {
 
         xActivatedMember = xQueueSelectFromSet(xQueueSet, 20);
 
+        //Receives inputs from DT3 (Grid) test
+        //The Blinker model is used for testing here, will implement further in mnemonic task instead
         //if (xActivatedMember == simulatorMsgQ) { 
                       
             if (xQueueReceive(simulatorMsgQ, &msgFromGrid, 10)) {
 
-                if (msgFromGrid.type == 0x11) {
+                if (msgFromGrid.type == ALIVE_CELL) {
                     //BRD_LEDGreenOn();  //test if received for now
+
+                } else if (msgFromGrid.type == BLINKER_OSCILLATOR) {
+
+                    BRD_LEDBlueToggle();  //INDICATES the simulator is receiving from grid successfully
+                    int xIndex = msgFromGrid.cell_x;
+                    int yIndex = msgFromGrid.cell_y;
+                    for (int a = xIndex; a <= xIndex + 2; a++) {
+                        grid[yIndex][a] = 1;
+                    }
                 }
-                
             }
         //}
         

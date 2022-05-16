@@ -14,7 +14,7 @@
  */
 
 #include "s4575272_CAG_grid.h"
-//#include "s4575272_lta1000g.h"
+
 
 //Initialize the task of grid
 void s4575272_tsk_CAG_grid_init(void) {
@@ -48,19 +48,13 @@ void s4575272TaskCAG_Grid(void) {
     uint8_t xIndex = 0; 
     uint8_t yIndex = 0;   //indicates the current X and Y values
 
-    //test grid
-    for (int i = 10; i < 13; i++) {
-
-        grid[i][20] = 1;
-        //grid[i][31] = 1;
-    }
 
     for (;;) {
         
         if ((recvChar = BRD_debuguart_getc()) != '\0') {
 
             if (recvChar == 'W') {
-                BRD_LEDBlueOn();
+
                 if (yIndex) {
                     yIndex--;
                 }
@@ -68,6 +62,7 @@ void s4575272TaskCAG_Grid(void) {
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_W);
 
             } else if (recvChar == 'A') {
+
                 if (xIndex) {
                     xIndex--;
                 }
@@ -75,6 +70,7 @@ void s4575272TaskCAG_Grid(void) {
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_A);
 
             } else if (recvChar == 'S') {
+
                 if (yIndex < 15) {
                     yIndex++;
                 }
@@ -82,6 +78,7 @@ void s4575272TaskCAG_Grid(void) {
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_S);
 
             } else if (recvChar == 'D') {
+
                 if (xIndex < 63) {
                     xIndex++;
                 }
@@ -89,10 +86,13 @@ void s4575272TaskCAG_Grid(void) {
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_D);
 
             } else if (recvChar == 'X') {
+
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_X);
             } else if (recvChar == 'Z') {
+
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_Z);
             } else if (recvChar == 'P') {
+
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_P);
             } else if (recvChar == 'O') {
 
@@ -100,21 +100,25 @@ void s4575272TaskCAG_Grid(void) {
                 yIndex = 0;
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_O);
             } else if (recvChar == 'C') {
+
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_C);
             }
 
-            s4575272_reg_lta1000g_init_write(16 * xIndex + yIndex); 
+            s4575272_reg_lta1000g_init_write(16 * xIndex + yIndex);   //indicates the location in LED Bar
             
         }
 
 
         //Doing queue stuff
+
+        //Send a Blinker model to simulator for testing atm
+        //Will implement the model in Mnemonic task instead of grid task
         if (simulatorMsgQ != NULL) {
 
             //BRD_LEDBlueOn();
             msgToSimulator.cell_x = xIndex;
             msgToSimulator.cell_y = yIndex;
-            msgToSimulator.type = ALIVE_CELL;
+            msgToSimulator.type = BLINKER_OSCILLATOR;
             xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
         }
 

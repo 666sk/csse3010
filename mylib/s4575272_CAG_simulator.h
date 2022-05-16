@@ -65,7 +65,7 @@ QueueSetMemberHandle_t xActivatedMember;
 
 EventGroupHandle_t keyctrlEventGroup;
 
-int grid[16][64];
+int grid[16][64];  //the core global grid that performs the simulation
 
 
 void s4575272_tsk_CAG_simulator_init(void);
