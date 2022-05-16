@@ -14,6 +14,7 @@
  */
 
 #include "s4575272_CAG_grid.h"
+//#include "s4575272_lta1000g.h"
 
 //Initialize the task of grid
 void s4575272_tsk_CAG_grid_init(void) {
@@ -31,6 +32,7 @@ void s4575272_tsk_CAG_grid_init(void) {
 void s4575272TaskCAG_Grid(void) {
     BRD_LEDInit();
     BRD_debuguart_init();
+    s4575272_reg_lta1000g_init();
 
     //Event group
     EventBits_t uxBits;
@@ -41,8 +43,10 @@ void s4575272TaskCAG_Grid(void) {
     caMessage_t msgToSimulator;
     simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
 
-    //Receiving chars from keyboard
-    char recvChar;
+    
+    char recvChar;   //Receiving chars from keyboard
+    uint8_t xIndex = 0; 
+    uint8_t yIndex = 0;   //indicates the current X and Y values
 
     //test grid
     for (int i = 10; i < 13; i++) {
@@ -57,13 +61,33 @@ void s4575272TaskCAG_Grid(void) {
 
             if (recvChar == 'W') {
                 BRD_LEDBlueOn();
+                if (yIndex) {
+                    yIndex--;
+                }
+                debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_W);
+
             } else if (recvChar == 'A') {
+                if (xIndex) {
+                    xIndex--;
+                }
+                debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_A);
+
             } else if (recvChar == 'S') {
+                if (yIndex < 15) {
+                    yIndex++;
+                }
+                debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_S);
+
             } else if (recvChar == 'D') {
+                if (xIndex < 63) {
+                    xIndex++;
+                }
+                debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_D);
+
             } else if (recvChar == 'X') {
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_X);
             } else if (recvChar == 'Z') {
@@ -71,10 +95,15 @@ void s4575272TaskCAG_Grid(void) {
             } else if (recvChar == 'P') {
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_P);
             } else if (recvChar == 'O') {
+
+                xIndex = 0;
+                yIndex = 0;
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_O);
             } else if (recvChar == 'C') {
                 uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_C);
-            } 
+            }
+
+            s4575272_reg_lta1000g_init_write(16 * xIndex + yIndex); 
             
         }
 
@@ -83,8 +112,8 @@ void s4575272TaskCAG_Grid(void) {
         if (simulatorMsgQ != NULL) {
 
             //BRD_LEDBlueOn();
-            msgToSimulator.cell_x = 3;
-            msgToSimulator.cell_y = 2;
+            msgToSimulator.cell_x = xIndex;
+            msgToSimulator.cell_y = yIndex;
             msgToSimulator.type = ALIVE_CELL;
             xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
         }

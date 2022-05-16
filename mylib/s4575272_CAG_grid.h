@@ -17,13 +17,16 @@
 #define __S4575272_CAG_grid_H__
 
 #include "s4575272_CAG_simulator.h"
+#include "s4575272_lta1000g.h"
 
 #define CAG_GRID_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 8 )
 #define CAG_GRID_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
 
 void s4575272_tsk_CAG_grid_init(void);
 void s4575272TaskCAG_Grid(void);
-
+void s4575272_reg_lta1000g_init(void);
+void s4575272_reg_lta1000g_init_write(unsigned short value);
+void lta1000g_seg_set(int segment, unsigned char segment_value);
 
 #endif
 

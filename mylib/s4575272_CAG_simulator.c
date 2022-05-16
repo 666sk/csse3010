@@ -102,6 +102,7 @@ void s4575272TaskCAG_Simulator(void) {
         } else if ((uxBits & EVT_KEY_C) != 0) {
             
             debug_log("Clear Display!\n\r");
+            grid[16][64] = 0;
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_C);
         }
 

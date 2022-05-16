@@ -32,6 +32,7 @@ void s4575272_tsk_CAG_display_init(void) {
 	portENABLE_INTERRUPTS();
 }
 
+
 //The task of displaying the simulation
 void s4575272TaskCAG_Display(void) {
     s4575272_reg_oled_init();
@@ -43,7 +44,7 @@ void s4575272TaskCAG_Display(void) {
 
         ssd1306_Fill(Black);    //Clear Screen
         //ssd1306_SetCursor(10,12);
-        BRD_LEDRedOn();
+        BRD_LEDRedOn();  //indicates display working for now
         for (int i = 0; i < 16; i++) {
 
             for (int j = 0; j < 64; j++) {
