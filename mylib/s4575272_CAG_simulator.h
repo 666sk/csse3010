@@ -23,6 +23,8 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "event_groups.h"
+#include "debug_log.h"
 
 #define DEAD_CELL 0x10
 #define ALIVE_CELL 0x11
@@ -33,6 +35,18 @@
 #define TOAD_OSCILLATOR 0x31
 #define BEACON_OSCILLATOR 0x32
 #define GLIDER_SPACESHIP 0x40
+
+#define EVT_KEY_W   1 << 0
+#define EVT_KEY_A   1 << 1 
+#define EVT_KEY_S   1 << 2
+#define EVT_KEY_D   1 << 3
+#define EVT_KEY_X   1 << 4
+#define EVT_KEY_Z   1 << 5
+#define EVT_KEY_P   1 << 6
+#define EVT_KEY_O   1 << 7
+#define EVT_KEY_C   1 << 8
+#define KEYCTRL_EVENT   0x1ff
+
 
 #define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 8 )
 #define CAG_SIMULATOR_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
@@ -47,6 +61,9 @@ typedef struct caMessage {
 QueueHandle_t simulatorMsgQ;
 QueueSetHandle_t xQueueSet;
 QueueSetMemberHandle_t xActivatedMember;
+
+
+EventGroupHandle_t keyctrlEventGroup;
 
 int grid[16][64];
 

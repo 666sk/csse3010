@@ -10,6 +10,9 @@
 #include "s4575272_CAG_simulator.h"
 #include "s4575272_CAG_display.h"
 #include "s4575272_CAG_grid.h"
+#include "s4575272_CAG_mnemonic.h"
+#include "s4575272_CAG_joystick.h"
+
 
 int main(void) {
     HAL_Init();

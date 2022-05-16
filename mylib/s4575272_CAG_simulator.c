@@ -22,7 +22,11 @@ void s4575272TaskCAG_Simulator(void) {
     grid[16][64] = 0;  //Initialise the global grid
     int nbr_grid[16][64];   
     nbr_grid[16][64] = 0;
-    int x,y;
+    uint8_t x, y;  //grid coordinates
+    uint8_t cellSelect = 0;   //1 if select the cell
+
+    EventBits_t uxBits;
+    keyctrlEventGroup = xEventGroupCreate();
 
     caMessage_t msgFromGrid;
     xQueueSet = xQueueCreateSet(sizeof(msgFromGrid)+10);
@@ -58,6 +62,50 @@ void s4575272TaskCAG_Simulator(void) {
             }
         }
 
+        //Event Group Bits Handling
+        uxBits = xEventGroupWaitBits(keyctrlEventGroup, KEYCTRL_EVENT, pdTRUE, pdFALSE, 10);
+        if ((uxBits & EVT_KEY_W) != 0) {
+            // Turn on LED
+			BRD_LEDGreenToggle();
+            debug_log("Move UP!\n\r");
+			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_W);
+		} else if ((uxBits & EVT_KEY_A) != 0) {
+
+            debug_log("Move LEFT!\n\r");
+			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_A);
+        } else if ((uxBits & EVT_KEY_S) != 0) {
+            
+            debug_log("Move DOWN!\n\r");
+			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_S);
+        } else if ((uxBits & EVT_KEY_D) != 0) {
+            
+            debug_log("Move RIGHT!\n\r");
+			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_D);
+        } else if ((uxBits & EVT_KEY_X) != 0) {
+            
+            debug_log("Select Cell!\n\r");
+            cellSelect = 1;   //set the flag here for further implement
+			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_X);
+        } else if ((uxBits & EVT_KEY_Z) != 0) {
+            
+            debug_log("Unselect Cell!\n\r");
+            cellSelect = 0;
+			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_Z);
+        } else if ((uxBits & EVT_KEY_P) != 0) {
+            
+            debug_log("Toggle Start/Stop!\n\r");
+			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_P);
+        } else if ((uxBits & EVT_KEY_O) != 0) {
+            
+            debug_log("Move to Origin!\n\r");
+			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_O);
+        } else if ((uxBits & EVT_KEY_C) != 0) {
+            
+            debug_log("Clear Display!\n\r");
+			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_C);
+        }
+
+
         xActivatedMember = xQueueSelectFromSet(xQueueSet, 20);
 
         //if (xActivatedMember == simulatorMsgQ) { 
@@ -65,7 +113,7 @@ void s4575272TaskCAG_Simulator(void) {
             if (xQueueReceive(simulatorMsgQ, &msgFromGrid, 10)) {
 
                 if (msgFromGrid.type == 0x11) {
-                    BRD_LEDGreenOn();  //test if received for now
+                    //BRD_LEDGreenOn();  //test if received for now
                 }
                 
             }

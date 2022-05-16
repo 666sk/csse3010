@@ -30,9 +30,19 @@ void s4575272_tsk_CAG_grid_init(void) {
 //The task of grid mode
 void s4575272TaskCAG_Grid(void) {
     BRD_LEDInit();
+    BRD_debuguart_init();
+
+    //Event group
+    EventBits_t uxBits;
+    EventBits_t uxBits1;
+    keyctrlEventGroup = xEventGroupCreate();
     
+    //Queue
     caMessage_t msgToSimulator;
     simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
+
+    //Receiving chars from keyboard
+    char recvChar;
 
     //test grid
     for (int i = 10; i < 13; i++) {
@@ -43,9 +53,36 @@ void s4575272TaskCAG_Grid(void) {
 
     for (;;) {
         
+        if ((recvChar = BRD_debuguart_getc()) != '\0') {
+
+            if (recvChar == 'W') {
+                BRD_LEDBlueOn();
+                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_W);
+            } else if (recvChar == 'A') {
+                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_A);
+            } else if (recvChar == 'S') {
+                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_S);
+            } else if (recvChar == 'D') {
+                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_D);
+            } else if (recvChar == 'X') {
+                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_X);
+            } else if (recvChar == 'Z') {
+                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_Z);
+            } else if (recvChar == 'P') {
+                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_P);
+            } else if (recvChar == 'O') {
+                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_O);
+            } else if (recvChar == 'C') {
+                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_C);
+            } 
+            
+        }
+
+
+        //Doing queue stuff
         if (simulatorMsgQ != NULL) {
 
-            BRD_LEDBlueOn();
+            //BRD_LEDBlueOn();
             msgToSimulator.cell_x = 3;
             msgToSimulator.cell_y = 2;
             msgToSimulator.type = ALIVE_CELL;
