@@ -63,6 +63,9 @@ QueueSetHandle_t xQueueSet;
 QueueSetMemberHandle_t xActivatedMember;
 
 
+SemaphoreHandle_t displaySemaphore;
+
+
 EventGroupHandle_t keyctrlEventGroup;
 
 int grid[16][64];  //the core global grid that performs the simulation

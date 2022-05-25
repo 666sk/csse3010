@@ -4,6 +4,7 @@
 # all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
 
 FREERTOS_PATH=$(SOURCELIB_ROOT)/components/os/FreeRTOS
+FREERTOSCLI_PATH=$(SOURCELIB_ROOT)/components/os/FreeRTOS-Plus/Source/FreeRTOS-Plus-CLI
 
 #Name of project
 PROJ_NAME=main
@@ -24,6 +25,9 @@ all: proj
 
 # include ./filelist.mk
 include $(FREERTOS_PATH)/filelist.mk
+
+#Include freertos makefile
+include $(FREERTOSCLI_PATH)/filelist.mk
 
 #include nucelo-f429zi makefile - NOTE MUST BE LAST TO INCLUDE
 include $(SOURCELIB_ROOT)/../repo/pf/filelist.mk

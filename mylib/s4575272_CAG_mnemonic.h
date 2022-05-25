@@ -11,3 +11,17 @@
  *
  *************************************************************** 
  */
+
+
+#ifndef __S4575272_CAG_mnemonic_H__
+#define __S4575272_CAG_mnemonic_H__
+
+
+
+#define CAG_MNEMONIC_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 6 )
+#define CAG_MNEMONIC_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
+
+void s4575272_tsk_CAG_mnemonic_init(void);
+void s4575272TaskCAG_Mnemonic(void);
+
+#endif

@@ -26,6 +26,7 @@ void s4575272TaskCAG_Simulator(void) {
     
     uint8_t x, y;  //grid coordinates
     uint8_t cellSelect = 0;   //1 if select the cell
+    uint8_t start = 1;   //0 stop 1 start
 
     EventBits_t uxBits;
     keyctrlEventGroup = xEventGroupCreate();
@@ -33,10 +34,9 @@ void s4575272TaskCAG_Simulator(void) {
     caMessage_t msgFromGrid;
     xQueueSet = xQueueCreateSet(sizeof(msgFromGrid)+10);
     simulatorMsgQ = xQueueCreate(10, sizeof(msgFromGrid));
-    xQueueAddToSet(simulatorMsgQ, xQueueSet);
+   
 
     for (;;) {
-        //BRD_LEDBlueOn();
 
         for (y = 0; y < 16; y++) {
 
@@ -47,30 +47,34 @@ void s4575272TaskCAG_Simulator(void) {
             }
         }
         
+
         for (y = 0; y < 16; y++) {
 
             for (x = 0; x < 64; x++) {
+
+                if (start == 1) {
             
-                if (grid[y][x]) {  //if the cell is alive
+                    if (grid[y][x]) {  //if the cell is alive
             
-                    if (nbr_grid[y][x] <= 1 || nbr_grid[y][x] >= 4) {
-                        grid[y][x] = 0;
-                    } 
-                } else {    //if the cell is dead(no alive cell)
+                        if (nbr_grid[y][x] <= 1 || nbr_grid[y][x] >= 4) {
+                            grid[y][x] = 0;
+                        } 
+                    } else {    //if the cell is dead(no alive cell)
             
-                    if (nbr_grid[y][x] == 3) {
-                        grid[y][x] = 1;
+                        if (nbr_grid[y][x] == 3) {
+                            grid[y][x] = 1;
+                        }
                     }
                 }
             }
         }
+        
 
         //Event Group Bits Handling
         uxBits = xEventGroupWaitBits(keyctrlEventGroup, KEYCTRL_EVENT, pdTRUE, pdFALSE, 10);
 
         if ((uxBits & EVT_KEY_W) != 0) {    //if 'W pressed' detected
-            // Turn on LED
-			BRD_LEDGreenToggle();
+        
             debug_log("Move UP!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_W);
 		} else if ((uxBits & EVT_KEY_A) != 0) {     //if 'A pressed' detected
@@ -96,7 +100,8 @@ void s4575272TaskCAG_Simulator(void) {
             cellSelect = 0;
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_Z);
         } else if ((uxBits & EVT_KEY_P) != 0) {     //if 'P pressed' detected
-            
+
+            start = ~start & 0x01;
             debug_log("Toggle Start/Stop!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_P);
         } else if ((uxBits & EVT_KEY_O) != 0) {     //if 'O pressed' detected
@@ -115,7 +120,7 @@ void s4575272TaskCAG_Simulator(void) {
 
         //Receives inputs from DT3 (Grid) test
         //The Blinker model is used for testing here, will implement further in mnemonic task instead
-        //if (xActivatedMember == simulatorMsgQ) { 
+        if (xActivatedMember == simulatorMsgQ) { 
                       
             if (xQueueReceive(simulatorMsgQ, &msgFromGrid, 10)) {
 
@@ -123,18 +128,20 @@ void s4575272TaskCAG_Simulator(void) {
                     //BRD_LEDGreenOn();  //test if received for now
 
                 } else if (msgFromGrid.type == BLINKER_OSCILLATOR) {
+                    BRD_LEDGreenOn();
 
-                    BRD_LEDBlueToggle();  //INDICATES the simulator is receiving from grid successfully
-                    int xIndex = msgFromGrid.cell_x;
-                    int yIndex = msgFromGrid.cell_y;
-                    for (int a = xIndex; a <= xIndex + 2; a++) {
-                        grid[yIndex][a] = 1;
+                    //vPortEnterCritical();
+                    //create a blinker model for testing
+                    for (int a = 30; a < 33; a++) {
+                        grid[12][a] = 1;
                     }
+                    //vPortExitCritical();
+                    
                 }
             }
-        //}
+        }
         
-        vTaskDelay(1);
+        vTaskDelay(500);
     }
 }
 
@@ -146,7 +153,7 @@ void s4575272_tsk_CAG_simulator_init(void) {
         (const signed char *) "CAGSimulatorTask",   // Text name for the task
         CAG_SIMULATOR_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
-        CAG_SIMULATOR_TASK_PRIORITY+1,              // Priority at which the task is created
+        CAG_SIMULATOR_TASK_PRIORITY+2,              // Priority at which the task is created
         NULL);  
 
 }

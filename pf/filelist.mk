@@ -22,6 +22,7 @@ LIBSRCS += $(MYLIB_PATH)/s4575272_CAG_simulator.c
 LIBSRCS += $(MYLIB_PATH)/s4575272_CAG_display.c
 LIBSRCS += $(MYLIB_PATH)/s4575272_CAG_grid.c
 LIBSRCS += $(MYLIB_PATH)/s4575272_CAG_mnemonic.c
+LIBSRCS += $(MYLIB_PATH)/s4575272_cli_CAG_mnemonic.c
 LIBSRCS += $(MYLIB_PATH)/s4575272_CAG_joystick.c
 LIBSRCS += $(wildcard $(SSD1306_PATH)/*.c)
 LIBSRCS += $(FREERTOS_PATH)/portable/MemMang/heap_1.c

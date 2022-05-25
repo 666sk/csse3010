@@ -38,12 +38,13 @@ void s4575272TaskCAG_Display(void) {
     s4575272_reg_oled_init();
 
     caMessage_t msgFromSimulator;
-    int displayGrid[16][64] = {0};
+    //int displayGrid[16][64] = {0};
+
+    displaySemaphore = xSemaphoreCreateBinary(); //create semaphore and give in display task
 
     for (;;) {
-
+        //vPortEnterCritical();
         ssd1306_Fill(Black);    //Clear Screen
-        //ssd1306_SetCursor(10,12);
         BRD_LEDRedOn();  //indicates display working for now
         for (int i = 0; i < 16; i++) {
 
@@ -59,6 +60,7 @@ void s4575272TaskCAG_Display(void) {
             }
         }
         ssd1306_UpdateScreen();
-		vTaskDelay(2);
+        //vPortExitCritical();
+		vTaskDelay(100);
 	}
 }

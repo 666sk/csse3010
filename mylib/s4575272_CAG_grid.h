@@ -27,6 +27,7 @@ void s4575272TaskCAG_Grid(void);
 void s4575272_reg_lta1000g_init(void);
 void s4575272_reg_lta1000g_init_write(unsigned short value);
 void lta1000g_seg_set(int segment, unsigned char segment_value);
+EventBits_t recvCharHandler(char recvChar,EventGroupHandle_t *keyctrlEventGroup, uint8_t *xIndex, uint8_t *yIndex);
 
 #endif
 

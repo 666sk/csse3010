@@ -41,7 +41,9 @@ void s4575272TaskCAG_Grid(void) {
     
     //Queue
     caMessage_t msgToSimulator;
+    //xQueueSet = xQueueCreateSet(sizeof(msgToSimulator)+10);
     simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
+    xQueueAddToSet(simulatorMsgQ, xQueueSet);
 
     
     char recvChar;   //Receiving chars from keyboard
@@ -50,59 +52,11 @@ void s4575272TaskCAG_Grid(void) {
 
 
     for (;;) {
-        
+       
         if ((recvChar = BRD_debuguart_getc()) != '\0') {
+            BRD_LEDBlueToggle();
 
-            if (recvChar == 'W') {
-
-                if (yIndex) {
-                    yIndex--;
-                }
-                debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
-                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_W);
-
-            } else if (recvChar == 'A') {
-
-                if (xIndex) {
-                    xIndex--;
-                }
-                debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
-                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_A);
-
-            } else if (recvChar == 'S') {
-
-                if (yIndex < 15) {
-                    yIndex++;
-                }
-                debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
-                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_S);
-
-            } else if (recvChar == 'D') {
-
-                if (xIndex < 63) {
-                    xIndex++;
-                }
-                debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
-                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_D);
-
-            } else if (recvChar == 'X') {
-
-                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_X);
-            } else if (recvChar == 'Z') {
-
-                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_Z);
-            } else if (recvChar == 'P') {
-
-                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_P);
-            } else if (recvChar == 'O') {
-
-                xIndex = 0;
-                yIndex = 0;
-                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_O);
-            } else if (recvChar == 'C') {
-
-                uxBits = xEventGroupSetBits(keyctrlEventGroup, EVT_KEY_C);
-            }
+            uxBits = recvCharHandler(recvChar, &keyctrlEventGroup, &xIndex, &yIndex);
 
             s4575272_reg_lta1000g_init_write(16 * xIndex + yIndex);   //indicates the location in LED Bar
             
@@ -111,8 +65,6 @@ void s4575272TaskCAG_Grid(void) {
 
         //Doing queue stuff
 
-        //Send a Blinker model to simulator for testing atm
-        //Will implement the model in Mnemonic task instead of grid task
         if (simulatorMsgQ != NULL) {
 
             //BRD_LEDBlueOn();
@@ -125,4 +77,60 @@ void s4575272TaskCAG_Grid(void) {
         vTaskDelay(50);
     }
 
+}
+
+
+
+EventBits_t recvCharHandler(char recvChar, EventGroupHandle_t *keyctrlEventGroup, uint8_t *xIndex, uint8_t *yIndex) {
+    EventBits_t uxBits;
+
+    if (recvChar == 'W') {
+
+        if (*yIndex > 0) {
+            *yIndex += (-1);
+        }
+        
+        debug_log("Current location is (%d, %d)!\n\r", *xIndex, *yIndex);
+        uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_W);
+
+    } else if (recvChar == 'A') {
+
+        if (*xIndex > 0) {
+            *xIndex += (-1);
+        }
+        debug_log("Current location is (%d, %d)!\n\r", *xIndex, *yIndex);
+        uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_A);
+
+    } else if (recvChar == 'S') {
+
+        if (*yIndex < 15) {
+            *yIndex += 1;
+        }
+        debug_log("Current location is (%d, %d)!\n\r", *xIndex, *yIndex);
+        uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_S);
+
+    } else if (recvChar == 'D') {
+
+        if (*xIndex < 63) {
+            *xIndex += 1;
+        }
+        debug_log("Current location is (%d, %d)!\n\r", *xIndex, *yIndex);
+        uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_D);
+
+    } else if (recvChar == 'X') {
+
+        uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_X);
+    } else if (recvChar == 'Z') {
+
+        uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_Z);
+    } else if (recvChar == 'P') {
+
+        uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_P);
+    } else if (recvChar == 'O') {
+        uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_O);
+    } else if (recvChar == 'C') {
+
+        uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_C);
+    }
+    return uxBits;
 }
