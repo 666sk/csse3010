@@ -1,4 +1,4 @@
- /** 
+/** 
  **************************************************************
  * @file mylib/s457527_CAG_display.c
  * @author Kuang Sheng - 45752720
@@ -39,13 +39,20 @@ void s4575272TaskCAG_Display(void) {
 
     caMessage_t msgFromSimulator;
     //int displayGrid[16][64] = {0};
+    // grid[16][64] = 0;
+    // for (int a = 30; a < 33; a++) {
+    //     grid[12][a] = 1;
+    // }
+    displaySemaphore = xSemaphoreCreateBinary(); 
+    //simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
+    xQueueAddToSet(displaySemaphore, xQueueSet);
 
-    displaySemaphore = xSemaphoreCreateBinary(); //create semaphore and give in display task
 
     for (;;) {
         //vPortEnterCritical();
         ssd1306_Fill(Black);    //Clear Screen
         BRD_LEDRedOn();  //indicates display working for now
+        
         for (int i = 0; i < 16; i++) {
 
             for (int j = 0; j < 64; j++) {
@@ -61,6 +68,7 @@ void s4575272TaskCAG_Display(void) {
         }
         ssd1306_UpdateScreen();
         //vPortExitCritical();
-		vTaskDelay(100);
+        xSemaphoreGive(displaySemaphore);
+		vTaskDelay(10);
 	}
 }

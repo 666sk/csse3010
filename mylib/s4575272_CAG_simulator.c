@@ -20,7 +20,11 @@
 void s4575272TaskCAG_Simulator(void) {
     BRD_LEDInit();
 
-    grid[16][64] = 0;  //Initialise the global grid
+    grid[16][64] = 0;
+    for (int a = 30; a < 33; a++) {
+        grid[12][a] = 1;
+    }
+    // grid[16][64] = 0;  //Initialise the global grid
     int nbr_grid[16][64];   
     nbr_grid[16][64] = 0;
     
@@ -34,10 +38,14 @@ void s4575272TaskCAG_Simulator(void) {
     caMessage_t msgFromGrid;
     xQueueSet = xQueueCreateSet(sizeof(msgFromGrid)+10);
     simulatorMsgQ = xQueueCreate(10, sizeof(msgFromGrid));
+
+    displaySemaphore = xSemaphoreCreateBinary(); 
+
+    //xQueueAddToSet(simulatorMsgQ, xQueueSet);
    
 
     for (;;) {
-
+        /*
         for (y = 0; y < 16; y++) {
 
             //Store the info of neighbour number of each cell
@@ -47,7 +55,7 @@ void s4575272TaskCAG_Simulator(void) {
             }
         }
         
-
+        
         for (y = 0; y < 16; y++) {
 
             for (x = 0; x < 64; x++) {
@@ -68,6 +76,7 @@ void s4575272TaskCAG_Simulator(void) {
                 }
             }
         }
+        */
         
 
         //Event Group Bits Handling
@@ -128,20 +137,53 @@ void s4575272TaskCAG_Simulator(void) {
                     //BRD_LEDGreenOn();  //test if received for now
 
                 } else if (msgFromGrid.type == BLINKER_OSCILLATOR) {
-                    BRD_LEDGreenOn();
+                    //BRD_LEDGreenOn();
 
                     //vPortEnterCritical();
-                    //create a blinker model for testing
-                    for (int a = 30; a < 33; a++) {
-                        grid[12][a] = 1;
-                    }
+                    
                     //vPortExitCritical();
                     
                 }
             }
+        } else if (xActivatedMember == displaySemaphore) {
+
+            if (xSemaphoreTake(displaySemaphore, 10 ) == pdTRUE){
+                BRD_LEDGreenOn();
+                for (y = 0; y < 16; y++) {
+
+                //Store the info of neighbour number of each cell
+                    for (x = 0; x < 64; x++) {
+
+                        nbr_grid[y][x] = nbr_count(grid, y, x);
+                    }
+                }
+            
+
+                for (y = 0; y < 16; y++) {
+
+                    for (x = 0; x < 64; x++) {
+
+                        if (start == 1) {
+                    
+                            if (grid[y][x]) {  //if the cell is alive
+                    
+                                if (nbr_grid[y][x] <= 1 || nbr_grid[y][x] >= 4) {
+                                    grid[y][x] = 0;
+                                } 
+                            } else {    //if the cell is dead(no alive cell)
+                    
+                                if (nbr_grid[y][x] == 3) {
+                                    grid[y][x] = 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
         }
         
-        vTaskDelay(500);
+        vTaskDelay(1000);
     }
 }
 
@@ -153,7 +195,7 @@ void s4575272_tsk_CAG_simulator_init(void) {
         (const signed char *) "CAGSimulatorTask",   // Text name for the task
         CAG_SIMULATOR_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
-        CAG_SIMULATOR_TASK_PRIORITY+2,              // Priority at which the task is created
+        CAG_SIMULATOR_TASK_PRIORITY+1,              // Priority at which the task is created
         NULL);  
 
 }
