@@ -16,7 +16,6 @@
 #include "s4575272_CAG_display.h"
 #include "s4575272_oled.h"
 #include "s4575272_CAG_simulator.h"
-
 //Initialise the CAG Display task
 void s4575272_tsk_CAG_display_init(void) {
 	portDISABLE_INTERRUPTS();
@@ -28,7 +27,6 @@ void s4575272_tsk_CAG_display_init(void) {
         NULL,                           // No Parameter needed
         OLEDTASK_PRIORITY,              // Priority at which the task is created
         NULL);                          // Used to pass out the created task's handle
-
 	portENABLE_INTERRUPTS();
 }
 
@@ -38,11 +36,6 @@ void s4575272TaskCAG_Display(void) {
     s4575272_reg_oled_init();
 
     caMessage_t msgFromSimulator;
-    //int displayGrid[16][64] = {0};
-    // grid[16][64] = 0;
-    // for (int a = 30; a < 33; a++) {
-    //     grid[12][a] = 1;
-    // }
     displaySemaphore = xSemaphoreCreateBinary(); 
     //simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
     xQueueAddToSet(displaySemaphore, xQueueSet);
@@ -72,3 +65,4 @@ void s4575272TaskCAG_Display(void) {
 		vTaskDelay(10);
 	}
 }
+

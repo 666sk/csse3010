@@ -1,4 +1,4 @@
- /** 
+   /** 
  **************************************************************
  * @file mylib/s457527_CAG_simulator.c
  * @author Kuang Sheng - 45752720
@@ -27,128 +27,120 @@ void s4575272TaskCAG_Simulator(void) {
     // grid[16][64] = 0;  //Initialise the global grid
     int nbr_grid[16][64];   
     nbr_grid[16][64] = 0;
-    
+
+
+    static uint32_t prevTime = 0;
     uint8_t x, y;  //grid coordinates
+    uint8_t xIndex = 0; 
+    uint8_t yIndex = 0;
     uint8_t cellSelect = 0;   //1 if select the cell
     uint8_t start = 1;   //0 stop 1 start
-
     EventBits_t uxBits;
     keyctrlEventGroup = xEventGroupCreate();
 
     caMessage_t msgFromGrid;
-    xQueueSet = xQueueCreateSet(sizeof(msgFromGrid)+10);
+  
     simulatorMsgQ = xQueueCreate(10, sizeof(msgFromGrid));
 
-    displaySemaphore = xSemaphoreCreateBinary(); 
+    displaySemaphore = xSemaphoreCreateBinary();
+    int flag = 0;
 
-    //xQueueAddToSet(simulatorMsgQ, xQueueSet);
    
 
     for (;;) {
-        /*
-        for (y = 0; y < 16; y++) {
-
-            //Store the info of neighbour number of each cell
-            for (x = 0; x < 64; x++) {
-
-                nbr_grid[y][x] = nbr_count(grid, y, x);
-            }
-        }
-        
-        
-        for (y = 0; y < 16; y++) {
-
-            for (x = 0; x < 64; x++) {
-
-                if (start == 1) {
-            
-                    if (grid[y][x]) {  //if the cell is alive
-            
-                        if (nbr_grid[y][x] <= 1 || nbr_grid[y][x] >= 4) {
-                            grid[y][x] = 0;
-                        } 
-                    } else {    //if the cell is dead(no alive cell)
-            
-                        if (nbr_grid[y][x] == 3) {
-                            grid[y][x] = 1;
-                        }
-                    }
-                }
-            }
-        }
-        */
-        
 
         //Event Group Bits Handling
         uxBits = xEventGroupWaitBits(keyctrlEventGroup, KEYCTRL_EVENT, pdTRUE, pdFALSE, 10);
 
         if ((uxBits & EVT_KEY_W) != 0) {    //if 'W pressed' detected
-        
-            debug_log("Move UP!\n\r");
+
+            if (yIndex > 0) {
+                yIndex += (-1);
+            }
+            debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_W);
 		} else if ((uxBits & EVT_KEY_A) != 0) {     //if 'A pressed' detected
 
-            debug_log("Move LEFT!\n\r");
+            if (xIndex > 0) {
+                xIndex += (-1);
+            }
+            debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_A);
         } else if ((uxBits & EVT_KEY_S) != 0) {     //if 'S pressed' detected
-            
-            debug_log("Move DOWN!\n\r");
+
+            if (yIndex < 15) {
+                yIndex += 1;
+            }
+            debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_S);
         } else if ((uxBits & EVT_KEY_D) != 0) {     //if 'D pressed' detected
-            
-            debug_log("Move RIGHT!\n\r");
+
+            if (xIndex < 63) {
+                xIndex += 1;
+            }
+            debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_D);
-        } else if ((uxBits & EVT_KEY_X) != 0) {     //if 'X pressed' detected
-            
-            debug_log("Select Cell!\n\r");
-            cellSelect = 1;   //set the flag here for further implement
-			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_X);
-        } else if ((uxBits & EVT_KEY_Z) != 0) {     //if 'Z pressed' detected
-            
-            debug_log("Unselect Cell!\n\r");
-            cellSelect = 0;
-			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_Z);
         } else if ((uxBits & EVT_KEY_P) != 0) {     //if 'P pressed' detected
 
             start = ~start & 0x01;
             debug_log("Toggle Start/Stop!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_P);
         } else if ((uxBits & EVT_KEY_O) != 0) {     //if 'O pressed' detected
-            
+
+            xIndex = 0;
+            yIndex = 0;
             debug_log("Move to Origin!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_O);
-        } else if ((uxBits & EVT_KEY_C) != 0) {     //if 'C pressed' detected
-            
-            debug_log("Clear Display!\n\r");
-            grid[16][64] = 0;
-			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_C);
         }
 
-
-        xActivatedMember = xQueueSelectFromSet(xQueueSet, 20);
-
-        //Receives inputs from DT3 (Grid) test
-        //The Blinker model is used for testing here, will implement further in mnemonic task instead
-        if (xActivatedMember == simulatorMsgQ) { 
                       
             if (xQueueReceive(simulatorMsgQ, &msgFromGrid, 10)) {
 
                 if (msgFromGrid.type == ALIVE_CELL) {
-                    //BRD_LEDGreenOn();  //test if received for now
-
+                      //test if received for now
                 } else if (msgFromGrid.type == BLINKER_OSCILLATOR) {
                     //BRD_LEDGreenOn();
-
+                    BRD_LEDBlueToggle();
                     //vPortEnterCritical();
                     
                     //vPortExitCritical();
                     
                 }
             }
-        } else if (xActivatedMember == displaySemaphore) {
 
             if (xSemaphoreTake(displaySemaphore, 10 ) == pdTRUE){
-                BRD_LEDGreenOn();
+                flag = 1;
+            } else {
+                flag = 0;
+            }
+
+
+            if (flag) {
+                if ((uxBits & EVT_KEY_C) != 0) {     //if 'C pressed' detected
+            
+                    debug_log("Clear Display!\n\r");
+                    for (y = 0; y < 16; y++) {
+                            for (x = 0; x < 64; x++) {
+                                grid[y][x] = 0;
+                            }
+                    }
+                    uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_C);
+                } else if ((uxBits & EVT_KEY_X) != 0) {     //if 'X pressed' detected
+            
+                    grid[yIndex][xIndex] = 1;
+                    debug_log("Select Cell!\n\r");
+                    uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_X);
+                } else if ((uxBits & EVT_KEY_Z) != 0) {     //if 'Z pressed' detected
+                
+                    grid[yIndex][xIndex] = 0;
+                    debug_log("Unselect Cell!\n\r");
+                    cellSelect = 0;
+                    uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_Z);
+                }
+
+                BRD_LEDGreenToggle();
+                
+                if ((HAL_GetTick() - prevTime) > 950) {
                 for (y = 0; y < 16; y++) {
 
                 //Store the info of neighbour number of each cell
@@ -179,11 +171,16 @@ void s4575272TaskCAG_Simulator(void) {
                         }
                     }
                 }
+                prevTime = HAL_GetTick();
+                }
+                
             }
+
             
-        }
+            
+        //}
         
-        vTaskDelay(1000);
+        vTaskDelay(50);
     }
 }
 

@@ -35,6 +35,7 @@
 #define TOAD_OSCILLATOR 0x31
 #define BEACON_OSCILLATOR 0x32
 #define GLIDER_SPACESHIP 0x40
+#define NONE 0x00
 
 #define EVT_KEY_W   1 << 0
 #define EVT_KEY_A   1 << 1 

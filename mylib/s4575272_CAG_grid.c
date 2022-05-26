@@ -15,7 +15,6 @@
 
 #include "s4575272_CAG_grid.h"
 
-
 //Initialize the task of grid
 void s4575272_tsk_CAG_grid_init(void) {
     
@@ -43,18 +42,16 @@ void s4575272TaskCAG_Grid(void) {
     caMessage_t msgToSimulator;
     //xQueueSet = xQueueCreateSet(sizeof(msgToSimulator)+10);
     simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
-    xQueueAddToSet(simulatorMsgQ, xQueueSet);
+    //xQueueAddToSet(simulatorMsgQ, xQueueSet);
 
     
     char recvChar;   //Receiving chars from keyboard
     uint8_t xIndex = 0; 
-    uint8_t yIndex = 0;   //indicates the current X and Y values
-
+    uint8_t yIndex = 0;   //indicates the current X and Y values used for LED Bar display cursor location
 
     for (;;) {
        
         if ((recvChar = BRD_debuguart_getc()) != '\0') {
-            BRD_LEDBlueToggle();
 
             uxBits = recvCharHandler(recvChar, &keyctrlEventGroup, &xIndex, &yIndex);
 
@@ -64,7 +61,6 @@ void s4575272TaskCAG_Grid(void) {
 
 
         //Doing queue stuff
-
         if (simulatorMsgQ != NULL) {
 
             //BRD_LEDBlueOn();
@@ -74,7 +70,7 @@ void s4575272TaskCAG_Grid(void) {
             xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
         }
 
-        vTaskDelay(50);
+        vTaskDelay(200);
     }
 
 }
@@ -89,34 +85,25 @@ EventBits_t recvCharHandler(char recvChar, EventGroupHandle_t *keyctrlEventGroup
         if (*yIndex > 0) {
             *yIndex += (-1);
         }
-        
-        debug_log("Current location is (%d, %d)!\n\r", *xIndex, *yIndex);
         uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_W);
-
     } else if (recvChar == 'A') {
 
         if (*xIndex > 0) {
             *xIndex += (-1);
         }
-        debug_log("Current location is (%d, %d)!\n\r", *xIndex, *yIndex);
         uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_A);
-
     } else if (recvChar == 'S') {
 
         if (*yIndex < 15) {
             *yIndex += 1;
         }
-        debug_log("Current location is (%d, %d)!\n\r", *xIndex, *yIndex);
         uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_S);
-
     } else if (recvChar == 'D') {
 
         if (*xIndex < 63) {
             *xIndex += 1;
         }
-        debug_log("Current location is (%d, %d)!\n\r", *xIndex, *yIndex);
         uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_D);
-
     } else if (recvChar == 'X') {
 
         uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_X);
@@ -127,6 +114,7 @@ EventBits_t recvCharHandler(char recvChar, EventGroupHandle_t *keyctrlEventGroup
 
         uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_P);
     } else if (recvChar == 'O') {
+
         uxBits = xEventGroupSetBits(*keyctrlEventGroup, EVT_KEY_O);
     } else if (recvChar == 'C') {
 
