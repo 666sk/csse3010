@@ -49,7 +49,7 @@
 #define KEYCTRL_EVENT   0x1ff
 
 
-#define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 8 )
+#define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 20 )
 #define CAG_SIMULATOR_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
 
 typedef struct caMessage {
@@ -65,12 +65,15 @@ QueueSetMemberHandle_t xActivatedMember;
 
 
 SemaphoreHandle_t displaySemaphore;
+SemaphoreHandle_t pbSemaphore;	// Semaphore for pushbutton interrupt
 
 
 EventGroupHandle_t keyctrlEventGroup;
 
 int grid[16][64];  //the core global grid that performs the simulation
 
+
+TaskHandle_t taskSim;
 
 void s4575272_tsk_CAG_simulator_init(void);
 void s4575272TaskCAG_Simulator(void);

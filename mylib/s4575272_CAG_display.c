@@ -44,8 +44,8 @@ void s4575272TaskCAG_Display(void) {
     for (;;) {
         //vPortEnterCritical();
         ssd1306_Fill(Black);    //Clear Screen
-        BRD_LEDRedOn();  //indicates display working for now
-        
+        //BRD_LEDRedOn();  //indicates display working for now
+        vTaskSuspend(taskSim);
         for (int i = 0; i < 16; i++) {
 
             for (int j = 0; j < 64; j++) {
@@ -61,8 +61,9 @@ void s4575272TaskCAG_Display(void) {
         }
         ssd1306_UpdateScreen();
         //vPortExitCritical();
-        xSemaphoreGive(displaySemaphore);
+        //xSemaphoreGive(displaySemaphore);
+        BRD_LEDBlueToggle();
+        vTaskResume(taskSim);
 		vTaskDelay(10);
 	}
 }
-
