@@ -30,9 +30,7 @@ void s4575272_reg_lta1000g_init(void);
 void s4575272_reg_lta1000g_init_write(unsigned short value);
 void lta1000g_seg_set(int segment, unsigned char segment_value);
 EventBits_t recvCharHandler(char recvChar,EventGroupHandle_t *keyctrlEventGroup, uint8_t *xIndex, uint8_t *yIndex);
-void pb_callback(uint16_t GPIO_Pin);
-void EXTI15_10_IRQHandler(void);
-static void hardware_init( void );
+
 
 #endif
 

@@ -32,7 +32,7 @@ void s4575272_tsk_CAG_mnemonic_init(void) {
         CAG_MNEMONIC_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
         CAG_MNEMONIC_TASK_PRIORITY,              // Priority at which the task is created
-        NULL);  
+        &taskMnem);  
 }
 
 void s4575272TaskCAG_Mnemonic(void) {
@@ -43,6 +43,7 @@ void s4575272TaskCAG_Mnemonic(void) {
 	int y;
 	int type;
 
+    int mode;
     int i;
 	char cRxedChar;
 	char cInputString[100];
@@ -54,14 +55,26 @@ void s4575272TaskCAG_Mnemonic(void) {
 	caMessage_t msgToSimulator;
     simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
 
-	//mode = 1;
+	pbSemaphore = xSemaphoreCreateBinary();	
+
+	mode = 0;
 
 	/* Initialise pointer to CLI output buffer. */
 	memset(cInputString, 0, sizeof(cInputString));
 	pcOutputString = FreeRTOS_CLIGetOutputBuffer();
 
+	vTaskSuspend(NULL);
+
 	for (;;) {
-		//BRD_LEDBlueOn();
+		BRD_LEDGreenOff();
+
+		if (pbSemaphore != NULL) {	
+            if ( xSemaphoreTake(pbSemaphore, 10 ) == pdTRUE ) {
+                
+                vTaskResume(taskGrid);
+                vTaskSuspend(NULL);
+            }
+        }
 			
 		/* Receive character from terminal */
 		cRxedChar = debug_getc();
@@ -179,8 +192,6 @@ void s4575272TaskCAG_Mnemonic(void) {
 							msgToSimulator.cell_y = 0;
 						}
  
-						
-
 						
 						xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
 					}

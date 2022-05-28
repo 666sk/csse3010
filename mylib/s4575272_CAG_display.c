@@ -60,9 +60,7 @@ void s4575272TaskCAG_Display(void) {
             }
         }
         ssd1306_UpdateScreen();
-        //vPortExitCritical();
-        //xSemaphoreGive(displaySemaphore);
-        BRD_LEDBlueToggle();
+    
         vTaskResume(taskSim);
 		vTaskDelay(10);
 	}

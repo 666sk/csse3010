@@ -77,6 +77,12 @@ int grid[16][64];  //the core global grid that performs the simulation
 
 
 TaskHandle_t taskSim;
+TaskHandle_t taskGrid;
+TaskHandle_t taskMnem;
+
+void hardware_init(void);
+void pb_callback(uint16_t GPIO_Pin);
+void EXTI15_10_IRQHandler(void);
 
 void s4575272_tsk_CAG_simulator_init(void);
 void s4575272TaskCAG_Simulator(void);

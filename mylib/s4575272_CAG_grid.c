@@ -24,13 +24,13 @@ void s4575272_tsk_CAG_grid_init(void) {
         CAG_GRID_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
         CAG_GRID_TASK_PRIORITY+2,              // Priority at which the task is created
-        NULL);  
+        &taskGrid);  
 }
 
 //The task of grid mode
 void s4575272TaskCAG_Grid(void) {
     BRD_LEDInit();
-    hardware_init();
+    //hardware_init();
     BRD_debuguart_init();
     s4575272_reg_lta1000g_init();
 
@@ -41,11 +41,9 @@ void s4575272TaskCAG_Grid(void) {
     
     //Queue
     caMessage_t msgToSimulator;
-    //xQueueSet = xQueueCreateSet(sizeof(msgToSimulator)+10);
     simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
-    //xQueueAddToSet(simulatorMsgQ, xQueueSet);
 
-
+    //Semaphore
     pbSemaphore = xSemaphoreCreateBinary();	
 
     
@@ -58,6 +56,17 @@ void s4575272TaskCAG_Grid(void) {
     for (;;) {
 
         if (mode){
+
+            BRD_LEDGreenOn();
+
+            if (pbSemaphore != NULL) {	
+                if ( xSemaphoreTake(pbSemaphore, 10 ) == pdTRUE ) {
+                
+                    vTaskResume(taskMnem);
+                    vTaskSuspend(NULL);
+                }
+            }
+        
        
         if (((recvChar = BRD_debuguart_getc()) != '\0')) {
 
@@ -122,75 +131,3 @@ EventBits_t recvCharHandler(char recvChar, EventGroupHandle_t *keyctrlEventGroup
     return uxBits;
 }
 
-
-/*
- * Hardware Initialisation.
- */
-static void hardware_init() {
-
-	portDISABLE_INTERRUPTS();	//Disable interrupts
-
-	// Enable GPIOC Clock
-	__GPIOC_CLK_ENABLE();
-
-    GPIOC->OSPEEDR |= (GPIO_SPEED_FAST << 13);	//Set fast speed.
-	GPIOC->PUPDR &= ~(0x03 << (13 * 2));			//Clear bits for no push/pull
-	GPIOC->MODER &= ~(0x03 << (13 * 2));			//Clear bits for input mode
-
-	// Enable EXTI clock
-	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-
-	//select trigger source (port c, pin 13) on EXTICR4.
-	SYSCFG->EXTICR[3] &= ~SYSCFG_EXTICR4_EXTI13;
-	SYSCFG->EXTICR[3] |= SYSCFG_EXTICR4_EXTI13_PC;
-
-	EXTI->RTSR |= EXTI_RTSR_TR13;	//enable rising dedge
-	EXTI->FTSR &= ~EXTI_FTSR_TR13;	//disable falling edge
-	EXTI->IMR |= EXTI_IMR_IM13;		//Enable external interrupt
-
-	//Enable priority (10) and interrupt callback. Do not set a priority lower than 5.
-	HAL_NVIC_SetPriority(EXTI15_10_IRQn, 10, 0);
-	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-
-	portENABLE_INTERRUPTS();	//Enable interrupts
-}
-
-/*
- * Pushbutton callback function
- */
-void pb_callback(uint16_t GPIO_Pin)
-{
-	BaseType_t xHigherPriorityTaskWoken;
-
-	if (GPIO_Pin == 13) {
-
-		// Is it time for another Task() to run?
-		xHigherPriorityTaskWoken = pdFALSE;
-
-        mode = 1 - mode; //toggle mode
-
-		if (pbSemaphore != NULL) {	// Check if semaphore exists 
-			xSemaphoreGiveFromISR(pbSemaphore, &xHigherPriorityTaskWoken );		// Give PB Semaphore from ISR
-		}
-
-		// Perform context switching, if required.
-		portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-	}
-}
-
-/*
- * Interrupt handler for EXTI 15 to 10 IRQ Handler
- */ 
-void EXTI15_10_IRQHandler(void) {
-
-	NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
-
-	// PR: Pending register
-	if ((EXTI->PR & EXTI_PR_PR13) == EXTI_PR_PR13) {
-
-		// cleared by writing a 1 to this bit
-		EXTI->PR |= EXTI_PR_PR13;	//Clear interrupt flag.
-
-		pb_callback(13);   // Callback for C13
-	}
-}

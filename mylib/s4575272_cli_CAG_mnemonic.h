@@ -33,6 +33,8 @@ extern CLI_Command_Definition_t xGlider;
 extern CLI_Command_Definition_t xStart;
 extern CLI_Command_Definition_t xStop;
 extern CLI_Command_Definition_t xClear;
+extern CLI_Command_Definition_t xDel;
+extern CLI_Command_Definition_t xCre;
 
 
 #endif
