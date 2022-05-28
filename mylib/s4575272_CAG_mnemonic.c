@@ -35,15 +35,11 @@ void s4575272_tsk_CAG_mnemonic_init(void) {
         &taskMnem);  
 }
 
+//The task of mnemonic mode
 void s4575272TaskCAG_Mnemonic(void) {
 	BRD_LEDInit();
 	BRD_debuguart_init();
 	
-	int x;
-	int y;
-	int type;
-
-    int mode;
     int i;
 	char cRxedChar;
 	char cInputString[100];
@@ -55,14 +51,14 @@ void s4575272TaskCAG_Mnemonic(void) {
 	caMessage_t msgToSimulator;
     simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
 
+	//Semaphore
 	pbSemaphore = xSemaphoreCreateBinary();	
-
-	mode = 0;
 
 	/* Initialise pointer to CLI output buffer. */
 	memset(cInputString, 0, sizeof(cInputString));
 	pcOutputString = FreeRTOS_CLIGetOutputBuffer();
 
+	//Suspend ourselves in the begining until switching to mnemonic mode
 	vTaskSuspend(NULL);
 
 	for (;;) {
@@ -114,85 +110,25 @@ void s4575272TaskCAG_Mnemonic(void) {
 
 						if (*(pcOutputString) == '1') {  //still
 
-							char* info;
-							info = strtok(pcOutputString, "<");
-							info = strtok(NULL, "<");
-							type = *info - 48;
-
-							if (type == 0) {
-								msgToSimulator.type = BLOCK_STILL_LIFE;
-							} else if (type == 1) {
-								msgToSimulator.type = BEEHIVE_STILL_LIFE;
-							} else if (type == 2) {
-								msgToSimulator.type = LOAF_STILL_LIFE;
-							} else {
-								msgToSimulator.type = NONE;
-							}
-							info = strtok(NULL, "<");
-							x = atoi(info);
-							info = strtok(NULL, "<");
-							y = atoi(info);
-							
-							msgToSimulator.cell_x = x;
-							msgToSimulator.cell_y = y;	
-
+							sendStill(&msgToSimulator, pcOutputString);
 						} else if (*(pcOutputString) == '2') {  //osc
 							
-							char* p;
-							p = strtok(pcOutputString, "<");
-							p = strtok(NULL, "<");
-							type = *p - 48;
-							
-							if (type == 0) {
-								msgToSimulator.type = BLINKER_OSCILLATOR;
-							} else if (type == 1) {
-								msgToSimulator.type = TOAD_OSCILLATOR;
-							} else if (type == 2) {
-								msgToSimulator.type = BEACON_OSCILLATOR;
-							} else {
-								msgToSimulator.type = NONE;
-							}
-							p = strtok(NULL, "<");
-							x = atoi(p);
-							p = strtok(NULL, "<");
-							y = atoi(p);
-							
-							msgToSimulator.cell_x = x;
-							msgToSimulator.cell_y = y;	
-
+							sendOsc(&msgToSimulator, pcOutputString);
 						} else if (*(pcOutputString) == '3') {     //glider
 							
-							msgToSimulator.type = GLIDER_SPACESHIP;
-							char* info;
-							info = strtok(pcOutputString, "<");
-							info = strtok(NULL, "<");
-							x = atoi(info);
-							info = strtok(NULL, "<");
-							y = atoi(info);
-							
-							msgToSimulator.cell_x = x;
-							msgToSimulator.cell_y = y;
-			
+							sendGlider(&msgToSimulator, pcOutputString);
 						} else if (*(pcOutputString) == '4') {    //start
 
-							msgToSimulator.type = START;
-							msgToSimulator.cell_x = 0;
-							msgToSimulator.cell_y = 0;
-
+							sendStart(&msgToSimulator);
 						} else if (*(pcOutputString) == '5') {    //stop
 
-							msgToSimulator.type = STOP;
-							msgToSimulator.cell_x = 0;
-							msgToSimulator.cell_y = 0;
-
+							sendStop(&msgToSimulator);
 						} else if (*(pcOutputString) == '6') {    //clear
 
-							msgToSimulator.type = CLEAR;
-							msgToSimulator.cell_x = 0;
-							msgToSimulator.cell_y = 0;
+							sendClear(&msgToSimulator);
 						}
  
-						
+
 						xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
 					}
 					
@@ -233,9 +169,91 @@ void s4575272TaskCAG_Mnemonic(void) {
 			}
 		}
 
-		
-		//}
 		vTaskDelay(50);	
 	}
 }
 
+//Obtain the basic info of still command sending to simulator
+void sendStill(caMessage_t* msgToSimulator, char* pcOutputString) {
+
+	char* info;
+	int type;
+	info = strtok(pcOutputString, "<");
+	info = strtok(NULL, "<");
+	type = *info - 48;
+
+	if (type == 0) {
+		msgToSimulator->type = BLOCK_STILL_LIFE;
+	} else if (type == 1) {
+		msgToSimulator->type = BEEHIVE_STILL_LIFE;
+	} else if (type == 2) {
+		msgToSimulator->type = LOAF_STILL_LIFE;
+	} else {
+		msgToSimulator->type = NONE;
+	}
+
+	info = strtok(NULL, "<");
+	msgToSimulator->cell_x = atoi(info);
+	info = strtok(NULL, "<");							
+	msgToSimulator->cell_y = atoi(info);
+}
+
+//Obtain the basic info of osc command sending to simulator
+void sendOsc(caMessage_t* msgToSimulator, char* pcOutputString) {
+
+	char* info;
+	int type;
+	info = strtok(pcOutputString, "<");
+	info = strtok(NULL, "<");
+	type = *info - 48;
+							
+	if (type == 0) {
+		msgToSimulator->type = BLINKER_OSCILLATOR;
+	} else if (type == 1) {
+		msgToSimulator->type = TOAD_OSCILLATOR;
+	} else if (type == 2) {
+		msgToSimulator->type = BEACON_OSCILLATOR;
+	} else {
+		msgToSimulator->type = NONE;
+	}
+	info = strtok(NULL, "<");
+	msgToSimulator->cell_x = atoi(info);
+	info = strtok(NULL, "<");
+	msgToSimulator->cell_y = atoi(info);
+}
+
+//Obtain the basic info of glider command sending to simulator
+void sendGlider(caMessage_t* msgToSimulator, char* pcOutputString) {
+
+	msgToSimulator->type = GLIDER_SPACESHIP;
+	char* info;
+	info = strtok(pcOutputString, "<");
+	info = strtok(NULL, "<");
+	msgToSimulator->cell_x = atoi(info);
+	info = strtok(NULL, "<");
+	msgToSimulator->cell_y = atoi(info);
+}
+
+//Obtain the basic info of clear command sending to simulator
+void sendClear(caMessage_t* msgToSimulator) {
+
+	msgToSimulator->type = CLEAR;
+	msgToSimulator->cell_x = 0;
+	msgToSimulator->cell_y = 0;
+}
+
+//Obtain the basic info of start command sending to simulator
+void sendStart(caMessage_t* msgToSimulator) {
+
+	msgToSimulator->type = START;
+	msgToSimulator->cell_x = 0;
+	msgToSimulator->cell_y = 0;
+}
+
+//Obtain the basic info of stop command sending to simulator
+void sendStop(caMessage_t* msgToSimulator) {
+
+	msgToSimulator->type = STOP;
+	msgToSimulator->cell_x = 0;
+	msgToSimulator->cell_y = 0;
+}

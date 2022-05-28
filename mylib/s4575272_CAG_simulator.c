@@ -114,7 +114,7 @@ void s4575272TaskCAG_Simulator(void) {
         }
 
                       
-            //Queue receiving from mnemonic
+        //Queue receiving from mnemonic
         if (xQueueReceive(simulatorMsgQ, &msgFromMnem, 10)) {
 
             if (msgFromMnem.type == BLOCK_STILL_LIFE) {
@@ -153,7 +153,7 @@ void s4575272TaskCAG_Simulator(void) {
         }
 
                 
-                if ((HAL_GetTick() - prevTime) > 950) {
+    if ((HAL_GetTick() - prevTime) > 950) {
                 for (y = 0; y < 16; y++) {
 
                 //Store the info of neighbour number of each cell
@@ -261,7 +261,7 @@ int nbr_count(int grid[16][64], int i, int j) {
 }
 
 
-
+//Draw a beacon model in the grid
 void drawBeacon(caMessage_t* msgFromMnem) {
 
     debug_log("Beacon Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
@@ -273,6 +273,7 @@ void drawBeacon(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+2] = 1; 
 }
 
+//Draw a blinker model in the grid
 void drawBlinker(caMessage_t* msgFromMnem) {
 
     debug_log("Blinker Received: x=%d, y=%d\n\r",msgFromMnem->cell_x,msgFromMnem->cell_y);
@@ -281,6 +282,7 @@ void drawBlinker(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;   
 }
 
+//Draw a toad model in the grid
 void drawToad(caMessage_t* msgFromMnem) {
 
     debug_log("Toad Received: x=%d, y=%d\n\r",msgFromMnem->cell_x,msgFromMnem->cell_y);
@@ -292,6 +294,7 @@ void drawToad(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x + 2] = 1; 
 }
 
+//Draw a block model in the grid
 void drawBlock(caMessage_t* msgFromMnem) {
 
     debug_log("Block Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
@@ -301,6 +304,7 @@ void drawBlock(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x+1] = 1;
 }
 
+//Draw a beehive model in the grid
 void drawBeehive(caMessage_t* msgFromMnem) {
 
     debug_log("Beehive Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
@@ -312,6 +316,7 @@ void drawBeehive(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+2] = 1;
 }
 
+//Draw a loaf model in the grid
 void drawLoaf(caMessage_t* msgFromMnem) {
 
     debug_log("Loaf Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
@@ -324,6 +329,7 @@ void drawLoaf(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+2] = 1;
 }
 
+//Draw a glider model in the grid
 void drawGlider(caMessage_t* msgFromMnem) {
 
     debug_log("Glider Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
@@ -334,6 +340,7 @@ void drawGlider(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+2] = 1;
 }
 
+//Clear the entire grid
 void clearGrid(void) {
     for (int i = 0; i < 16; i++) {
        for (int j = 0; j < 64; j++) {

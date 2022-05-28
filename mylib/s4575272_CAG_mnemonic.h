@@ -27,5 +27,11 @@ uint8_t mode;
 
 void s4575272_tsk_CAG_mnemonic_init(void);
 void s4575272TaskCAG_Mnemonic(void);
+void sendClear(caMessage_t* msgToSimulator);
+void sendStill(caMessage_t* msgToSimulator, char* pcOutputString);
+void sendOsc(caMessage_t* msgToSimulator, char* pcOutputString);
+void sendGlider(caMessage_t* msgToSimulator, char* pcOutputString);
+void sendStart(caMessage_t* msgToSimulator);
+void sendStop(caMessage_t* msgToSimulator);
 
 #endif

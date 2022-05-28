@@ -83,8 +83,7 @@ void s4575272TaskCAG_Grid(void) {
 
 }
 
-
-
+//Process the received character and set event bits
 EventBits_t recvCharHandler(char recvChar, EventGroupHandle_t *keyctrlEventGroup, uint8_t *xIndex, uint8_t *yIndex) {
     EventBits_t uxBits;
 
