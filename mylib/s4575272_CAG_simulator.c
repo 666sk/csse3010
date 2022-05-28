@@ -135,6 +135,16 @@ void s4575272TaskCAG_Simulator(void) {
             } else if (msgFromMnem.type == GLIDER_SPACESHIP) {
 
                 drawGlider(&msgFromMnem);
+            } else if (msgFromMnem.type == START) {
+                debug_log("start Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
+                start = 1;
+            } else if (msgFromMnem.type == STOP) {
+                debug_log("stop Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
+                start = 0;
+            } else if (msgFromMnem.type == CLEAR) {
+
+                debug_log("stop Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
+                clearGrid();
             }
 
         }
@@ -320,4 +330,12 @@ void drawGlider(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x] = 1;
     grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+1] = 1;
     grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+2] = 1;
+}
+
+void clearGrid(void) {
+    for (int i = 0; i < 16; i++) {
+       for (int j = 0; j < 64; j++) {
+           grid[i][j] = 0;
+       }
+    }
 }

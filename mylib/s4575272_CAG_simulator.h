@@ -36,6 +36,9 @@
 #define BEACON_OSCILLATOR 0x32
 #define GLIDER_SPACESHIP 0x40
 #define NONE 0x00
+#define START 0x01
+#define STOP 0x02
+#define CLEAR 0X03
 
 #define EVT_KEY_W   1 << 0
 #define EVT_KEY_A   1 << 1 
@@ -85,5 +88,6 @@ void drawToad(caMessage_t* msgFromMnem);
 void drawBeehive(caMessage_t* msgFromMnem);
 void drawLoaf(caMessage_t* msgFromMnem);
 void drawGlider(caMessage_t* msgFromMnem);
+void clearGrid(void);
 
 #endif

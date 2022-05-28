@@ -22,6 +22,9 @@ void s4575272_tsk_CAG_mnemonic_init(void) {
     FreeRTOS_CLIRegisterCommand(&xStill);
 	FreeRTOS_CLIRegisterCommand(&xOsc);
 	FreeRTOS_CLIRegisterCommand(&xGlider);
+	FreeRTOS_CLIRegisterCommand(&xStart);
+	FreeRTOS_CLIRegisterCommand(&xStop);
+	FreeRTOS_CLIRegisterCommand(&xClear);
     
     xTaskCreate(
         (void *) &s4575272TaskCAG_Mnemonic,     // Function that implements the task
@@ -143,7 +146,7 @@ void s4575272TaskCAG_Mnemonic(void) {
 							
 							msgToSimulator.cell_x = x;
 							msgToSimulator.cell_y = y;	
-							
+
 						} else if (*(pcOutputString) == '3') {     //glider
 							
 							msgToSimulator.type = GLIDER_SPACESHIP;
@@ -157,6 +160,23 @@ void s4575272TaskCAG_Mnemonic(void) {
 							msgToSimulator.cell_x = x;
 							msgToSimulator.cell_y = y;
 			
+						} else if (*(pcOutputString) == '4') {    //start
+
+							msgToSimulator.type = START;
+							msgToSimulator.cell_x = 0;
+							msgToSimulator.cell_y = 0;
+
+						} else if (*(pcOutputString) == '5') {    //stop
+
+							msgToSimulator.type = STOP;
+							msgToSimulator.cell_x = 0;
+							msgToSimulator.cell_y = 0;
+
+						} else if (*(pcOutputString) == '6') {    //clear
+
+							msgToSimulator.type = CLEAR;
+							msgToSimulator.cell_x = 0;
+							msgToSimulator.cell_y = 0;
 						}
  
 						
