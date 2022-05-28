@@ -124,23 +124,17 @@ void s4575272TaskCAG_Simulator(void) {
 
                 drawLoaf(&msgFromMnem);
             } else if (msgFromMnem.type == BLINKER_OSCILLATOR) {
-                        
-                debug_log("Blinker Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
-                grid[msgFromMnem.cell_y][msgFromMnem.cell_x] = 1;
-                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 1] = 1;
-                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 2] = 1;   
+
+                drawBlinker(&msgFromMnem);
             } else if (msgFromMnem.type == TOAD_OSCILLATOR) {
 
-                debug_log("Toad Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
-                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 1] = 1;
-                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 2] = 1;
-                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 3] = 1; 
-                grid[msgFromMnem.cell_y+1][msgFromMnem.cell_x] = 1;
-                grid[msgFromMnem.cell_y+1][msgFromMnem.cell_x + 1] = 1;
-                grid[msgFromMnem.cell_y+1][msgFromMnem.cell_x + 2] = 1; 
+                drawToad(&msgFromMnem);
             } else if (msgFromMnem.type == BEACON_OSCILLATOR) {
 
                 drawBeacon(&msgFromMnem);
+            } else if (msgFromMnem.type == GLIDER_SPACESHIP) {
+
+                drawGlider(&msgFromMnem);
             }
 
         }
@@ -255,6 +249,7 @@ int nbr_count(int grid[16][64], int i, int j) {
 }
 
 
+
 void drawBeacon(caMessage_t* msgFromMnem) {
 
     debug_log("Beacon Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
@@ -264,6 +259,25 @@ void drawBeacon(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+3] = 1;
     grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+3] = 1;
     grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+2] = 1; 
+}
+
+void drawBlinker(caMessage_t* msgFromMnem) {
+
+    debug_log("Blinker Received: x=%d, y=%d\n\r",msgFromMnem->cell_x,msgFromMnem->cell_y);
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;   
+}
+
+void drawToad(caMessage_t* msgFromMnem) {
+
+    debug_log("Toad Received: x=%d, y=%d\n\r",msgFromMnem->cell_x,msgFromMnem->cell_y);
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 3] = 1; 
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x + 2] = 1; 
 }
 
 void drawBlock(caMessage_t* msgFromMnem) {
@@ -296,4 +310,14 @@ void drawLoaf(caMessage_t* msgFromMnem) {
     grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+3] = 1;
     grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+1] = 1;
     grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+2] = 1;
+}
+
+void drawGlider(caMessage_t* msgFromMnem) {
+
+    debug_log("Glider Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x+2] = 1;
+    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+1] = 1;
+    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+2] = 1;
 }

@@ -80,7 +80,10 @@ void s4575272TaskCAG_Simulator(void);
 int nbr_count(int grid[16][64], int i, int j);
 void drawBeacon(caMessage_t* msgFromMnem);
 void drawBlock(caMessage_t* msgFromMnem);
+void drawBlinker(caMessage_t* msgFromMnem);
+void drawToad(caMessage_t* msgFromMnem);
 void drawBeehive(caMessage_t* msgFromMnem);
 void drawLoaf(caMessage_t* msgFromMnem);
+void drawGlider(caMessage_t* msgFromMnem);
 
 #endif

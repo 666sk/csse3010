@@ -15,16 +15,23 @@
 
 
 CLI_Command_Definition_t xStill = {
-  "still",					
+  	"still",					
 	"still <type><x><y>\r\n",	
 	prvStillCommand,					
 	1					
 };
 
 CLI_Command_Definition_t xOsc = {
-  "osc",					
+  	"osc",					
 	"osc <type><x><y>\r\n",	
 	prvOscCommand,					
+	1					
+};
+
+CLI_Command_Definition_t xGlider = {
+  	"glider",					
+	"glider <x><y>\r\n",	
+	prvGliderCommand,					
 	1					
 };
 
@@ -61,8 +68,17 @@ extern BaseType_t prvOscCommand(char *pcWriteBuffer, size_t xWriteBufferLen, con
 	return pdFALSE;
 }
 
-/*
-static BaseType_t prvGliderCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
+extern BaseType_t prvGliderCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
+	long lParam_len;
+	const char *cCmd_string;
 
+	/* Get parameters from command string */
+	cCmd_string = FreeRTOS_CLIGetParameter(pcCommandString, 1, &lParam_len);
+
+	/* Write command echo output string to write buffer. */
+	xWriteBufferLen = sprintf((char *) pcWriteBuffer, "3%s\n\r", cCmd_string);
+
+	/* Return pdFALSE, as there are no more strings to return */
+	/* Only return pdTRUE, if more strings need to be printed */
+	return pdFALSE;
 }
-*/
