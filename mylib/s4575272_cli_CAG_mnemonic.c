@@ -18,7 +18,7 @@ CLI_Command_Definition_t xStill = {
   "still",					
 	"still <type><x><y>\r\n",	
 	prvStillCommand,					
-	2					
+	1					
 };
 
 CLI_Command_Definition_t xOsc = {
@@ -34,10 +34,10 @@ extern BaseType_t prvStillCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 	const char *cCmd_string;
 
 	/* Get parameters from command string */
-	cCmd_string = FreeRTOS_CLIGetParameter(pcCommandString, 2, &lParam_len);
+	cCmd_string = FreeRTOS_CLIGetParameter(pcCommandString, 1, &lParam_len);
 
 	/* Write command echo output string to write buffer. */
-	xWriteBufferLen = sprintf((char *) pcWriteBuffer, "\n\r%s\n\r", cCmd_string);
+	xWriteBufferLen = sprintf((char *) pcWriteBuffer, "1%s\n\r", cCmd_string);
 
 	/* Return pdFALSE, as there are no more strings to return */
 	/* Only return pdTRUE, if more strings need to be printed */

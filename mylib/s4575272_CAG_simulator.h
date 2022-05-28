@@ -49,7 +49,7 @@
 #define KEYCTRL_EVENT   0x1ff
 
 
-#define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 20 )
+#define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 15 )
 #define CAG_SIMULATOR_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
 
 typedef struct caMessage {
@@ -78,5 +78,9 @@ TaskHandle_t taskSim;
 void s4575272_tsk_CAG_simulator_init(void);
 void s4575272TaskCAG_Simulator(void);
 int nbr_count(int grid[16][64], int i, int j);
+void drawBeacon(caMessage_t* msgFromMnem);
+void drawBlock(caMessage_t* msgFromMnem);
+void drawBeehive(caMessage_t* msgFromMnem);
+void drawLoaf(caMessage_t* msgFromMnem);
 
 #endif

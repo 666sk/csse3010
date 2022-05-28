@@ -34,9 +34,7 @@ void s4575272_tsk_CAG_mnemonic_init(void) {
 void s4575272TaskCAG_Mnemonic(void) {
 	BRD_LEDInit();
 	BRD_debuguart_init();
-	//int mnemonic;
-	//char* xChar = (char*)malloc(sizeof(char)*2);
-	//char* yChar = (char*)malloc(sizeof(char)*2);
+	
 	int x;
 	int y;
 	int type;
@@ -52,7 +50,7 @@ void s4575272TaskCAG_Mnemonic(void) {
 	caMessage_t msgToSimulator;
     simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
 
-	mode = 1;
+	//mode = 1;
 
 	/* Initialise pointer to CLI output buffer. */
 	memset(cInputString, 0, sizeof(cInputString));
@@ -96,8 +94,30 @@ void s4575272TaskCAG_Mnemonic(void) {
 					portEXIT_CRITICAL();
 
 					if (simulatorMsgQ != NULL) {
-						if (*(pcOutputString) == '1') {
 
+						if (*(pcOutputString) == '1') {  //still
+
+							char* info;
+							info = strtok(pcOutputString, "<");
+							info = strtok(NULL, "<");
+							type = *info - 48;
+
+							if (type == 0) {
+								msgToSimulator.type = BLOCK_STILL_LIFE;
+							} else if (type == 1) {
+								msgToSimulator.type = BEEHIVE_STILL_LIFE;
+							} else if (type == 2) {
+								msgToSimulator.type = LOAF_STILL_LIFE;
+							} else {
+								msgToSimulator.type = NONE;
+							}
+							info = strtok(NULL, "<");
+							x = atoi(info);
+							info = strtok(NULL, "<");
+							y = atoi(info);
+							
+							msgToSimulator.cell_x = x;
+							msgToSimulator.cell_y = y;	
 						} else if (*(pcOutputString) == '2') {  //osc
 							
 							char* p;

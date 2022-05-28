@@ -67,20 +67,9 @@ void s4575272TaskCAG_Grid(void) {
             
         }
 
-
-        //Doing queue stuff
-        if (simulatorMsgQ != NULL) {
-
-            //BRD_LEDBlueOn();
-            msgToSimulator.cell_x = xIndex;
-            msgToSimulator.cell_y = yIndex;
-            msgToSimulator.type = BLINKER_OSCILLATOR;
-            xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
-        }
-
     
     }
-    vTaskDelay(200);
+        vTaskDelay(100);
     }
 
 }

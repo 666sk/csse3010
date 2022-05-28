@@ -67,3 +67,4 @@ void s4575272TaskCAG_Display(void) {
 		vTaskDelay(10);
 	}
 }
+

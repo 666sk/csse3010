@@ -1,4 +1,4 @@
-   /** 
+/** 
  **************************************************************
  * @file mylib/s457527_CAG_simulator.c
  * @author Kuang Sheng - 45752720
@@ -20,12 +20,20 @@ void s4575272TaskCAG_Simulator(void) {
     BRD_LEDInit();
 
     grid[16][64] = 0;
+    //memset grid
+    //for (int i = 0; i < 16; i++) {
+    //    for (int j = 0; j < 64; j++) {
+    //        grid[i][j] = 0;
+    //    }
+    //}
+
     for (int a = 30; a < 33; a++) {
         grid[12][a] = 1;
     }
-    // grid[16][64] = 0;  //Initialise the global grid
+    
     int nbr_grid[16][64];   
     nbr_grid[16][64] = 0;
+    //int nbr_grid[16][64] = {0};
 
 
     static uint32_t prevTime = 0;
@@ -37,12 +45,9 @@ void s4575272TaskCAG_Simulator(void) {
     EventBits_t uxBits;
     keyctrlEventGroup = xEventGroupCreate();
 
-    caMessage_t msgFromGrid;
+    caMessage_t msgFromMnem;
   
-    simulatorMsgQ = xQueueCreate(10, sizeof(msgFromGrid));
-
-    displaySemaphore = xSemaphoreCreateBinary();
-    int flag = 0;
+    simulatorMsgQ = xQueueCreate(10, sizeof(msgFromMnem));
 
    
 
@@ -84,63 +89,61 @@ void s4575272TaskCAG_Simulator(void) {
             yIndex = 0;
             debug_log("Move to Origin!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_O);
+        } else if ((uxBits & EVT_KEY_C) != 0) {     //if 'C pressed' detected
+            
+            debug_log("Clear Display!\n\r");
+            for (y = 0; y < 16; y++) {
+                for (x = 0; x < 64; x++) {
+                    grid[y][x] = 0;
+                }
+            }
+            uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_C);
+        } else if ((uxBits & EVT_KEY_X) != 0) {     //if 'X pressed' detected
+            
+            grid[yIndex][xIndex] = 1;
+            debug_log("Select Cell!\n\r");
+            uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_X);
+        } else if ((uxBits & EVT_KEY_Z) != 0) {     //if 'Z pressed' detected
+                
+            grid[yIndex][xIndex] = 0;
+            debug_log("Unselect Cell!\n\r");        
+            uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_Z);
         }
 
                       
             //Queue receiving from mnemonic
-                if (xQueueReceive(simulatorMsgQ, &msgFromGrid, 10)) {
+        if (xQueueReceive(simulatorMsgQ, &msgFromMnem, 10)) {
 
-                    if (msgFromGrid.type == ALIVE_CELL) {
-                        //test if received for now
-                    } else if (msgFromGrid.type == BLINKER_OSCILLATOR) {
-                        //BRD_LEDGreenOn();
+            if (msgFromMnem.type == BLOCK_STILL_LIFE) {
 
-                        debug_log("Blinker Received: x=%d, y=%d\n\r",msgFromGrid.cell_x,msgFromGrid.cell_y);
-                        grid[msgFromGrid.cell_y][msgFromGrid.cell_x] = 1;
-                        grid[msgFromGrid.cell_y][msgFromGrid.cell_x+1] = 1;
-                        grid[msgFromGrid.cell_y][msgFromGrid.cell_x+2] = 1;   
-                    } else if (msgFromGrid.type == TOAD_OSCILLATOR) {
-
-                        debug_log("Toad Received: x=%d, y=%d\n\r",msgFromGrid.cell_x,msgFromGrid.cell_y);
-                        grid[msgFromGrid.cell_y][msgFromGrid.cell_x+1] = 1;
-                        grid[msgFromGrid.cell_y][msgFromGrid.cell_x+2] = 1;
-                        grid[msgFromGrid.cell_y][msgFromGrid.cell_x+3] = 1; 
-                        grid[msgFromGrid.cell_y+1][msgFromGrid.cell_x] = 1;
-                        grid[msgFromGrid.cell_y+1][msgFromGrid.cell_x+1] = 1;
-                        grid[msgFromGrid.cell_y+1][msgFromGrid.cell_x+2] = 1; 
-                    }
-
-                }
-
-            // if (xSemaphoreTake(displaySemaphore, 10 ) == pdTRUE){
-            //     flag = 1;
-            // } else {
-            //     flag = 1;
-            // }
-
-
-            //if (flag) {
-                if ((uxBits & EVT_KEY_C) != 0) {     //if 'C pressed' detected
-            
-                    debug_log("Clear Display!\n\r");
-                    for (y = 0; y < 16; y++) {
-                            for (x = 0; x < 64; x++) {
-                                grid[y][x] = 0;
-                            }
-                    }
-                    uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_C);
-                } else if ((uxBits & EVT_KEY_X) != 0) {     //if 'X pressed' detected
-            
-                    grid[yIndex][xIndex] = 1;
-                    debug_log("Select Cell!\n\r");
-                    uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_X);
-                } else if ((uxBits & EVT_KEY_Z) != 0) {     //if 'Z pressed' detected
+                drawBlock(&msgFromMnem);
+            } else if (msgFromMnem.type == BEEHIVE_STILL_LIFE) {
                 
-                    grid[yIndex][xIndex] = 0;
-                    debug_log("Unselect Cell!\n\r");
-                    cellSelect = 0;
-                    uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_Z);
-                }
+                drawBeehive(&msgFromMnem);
+            } else if (msgFromMnem.type == LOAF_STILL_LIFE) {
+
+                drawLoaf(&msgFromMnem);
+            } else if (msgFromMnem.type == BLINKER_OSCILLATOR) {
+                        
+                debug_log("Blinker Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
+                grid[msgFromMnem.cell_y][msgFromMnem.cell_x] = 1;
+                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 1] = 1;
+                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 2] = 1;   
+            } else if (msgFromMnem.type == TOAD_OSCILLATOR) {
+
+                debug_log("Toad Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
+                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 1] = 1;
+                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 2] = 1;
+                grid[msgFromMnem.cell_y][msgFromMnem.cell_x + 3] = 1; 
+                grid[msgFromMnem.cell_y+1][msgFromMnem.cell_x] = 1;
+                grid[msgFromMnem.cell_y+1][msgFromMnem.cell_x + 1] = 1;
+                grid[msgFromMnem.cell_y+1][msgFromMnem.cell_x + 2] = 1; 
+            } else if (msgFromMnem.type == BEACON_OSCILLATOR) {
+
+                drawBeacon(&msgFromMnem);
+            }
+
+        }
 
                 BRD_LEDGreenToggle();
                 
@@ -177,12 +180,7 @@ void s4575272TaskCAG_Simulator(void) {
                 }
                 prevTime = HAL_GetTick();
                 }
-                
-            //}
 
-            
-            
-        //}
         
         vTaskDelay(50);
     }
@@ -254,4 +252,48 @@ int nbr_count(int grid[16][64], int i, int j) {
     }
 
     return nbr_number;
+}
+
+
+void drawBeacon(caMessage_t* msgFromMnem) {
+
+    debug_log("Beacon Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1; 
+    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+3] = 1;
+    grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+3] = 1;
+    grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+2] = 1; 
+}
+
+void drawBlock(caMessage_t* msgFromMnem) {
+
+    debug_log("Block Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1; 
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x+1] = 1;
+}
+
+void drawBeehive(caMessage_t* msgFromMnem) {
+
+    debug_log("Beehive Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+2] = 1;
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1; 
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x+3] = 1;
+    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+1] = 1;
+    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+2] = 1;
+}
+
+void drawLoaf(caMessage_t* msgFromMnem) {
+
+    debug_log("Loaf Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x+2] = 1; 
+    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+3] = 1;
+    grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+1] = 1;
+    grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+2] = 1;
 }
