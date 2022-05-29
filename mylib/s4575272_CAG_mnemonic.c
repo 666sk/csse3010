@@ -33,7 +33,7 @@ void s4575272_tsk_CAG_mnemonic_init(void) {
         (const signed char *) "TaskCAG_Mnemonic",   // Text name for the task
         CAG_MNEMONIC_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
-        CAG_MNEMONIC_TASK_PRIORITY,              // Priority at which the task is created
+        CAG_MNEMONIC_TASK_PRIORITY+1,              // Priority at which the task is created
         &taskMnem);  
 }
 

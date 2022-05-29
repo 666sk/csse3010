@@ -21,7 +21,14 @@
 #define CAG_JOYSTICK_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 5 )
 #define CAG_JOYSTICK_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
 
- 
+ADC_HandleTypeDef AdcHandle1,AdcHandle2;
+ADC_ChannelConfTypeDef AdcChanConfig1,AdcChanConfig2;
+
+#define S4575272_REG_JOYSTICK_X_READ() s4575272_joystick_readxy(AdcHandle1)
+#define S4575272_REG_JOYSTICK_Y_READ() s4575272_joystick_readxy(AdcHandle2)
+
+
+
 void s4575272_tsk_CAG_joystick_init(void);
 void s4575272TaskCAG_Joystick(void);
 

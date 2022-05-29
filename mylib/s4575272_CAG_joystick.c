@@ -23,7 +23,7 @@ void s4575272_tsk_CAG_joystick_init(void) {
         (const signed char *) "CAGJoystickTask",   // Text name for the task
         CAG_JOYSTICK_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
-        CAG_JOYSTICK_TASK_PRIORITY,              // Priority at which the task is created
+        CAG_JOYSTICK_TASK_PRIORITY + 2,              // Priority at which the task is created
         &taskJoystick);  
 
 }
@@ -33,13 +33,29 @@ void s4575272_tsk_CAG_joystick_init(void) {
 void s4575272TaskCAG_Joystick(void) {
 
     //Z signal
-    joyPbSemaphore = xSemaphoreCreateBinary();
+    //joyPbSemaphore = xSemaphoreCreateBinary();
 	s4575272_reg_joystick_pb_init();
+    s4575272_reg_joystick_init();
+
+    signalMsg_t joyToSimulator;
+    
 
     for (;;) {
-		
 
-		vTaskDelay(20);
+        HAL_ADC_Start(&AdcHandle1); 
+	    HAL_ADC_Start(&AdcHandle2);
+		
+        if (signalMsgQ != NULL) {
+
+            joyToSimulator.xSignal = S4575272_REG_JOYSTICK_X_READ();
+            joyToSimulator.ySignal = S4575272_REG_JOYSTICK_Y_READ();
+            //debug_log("y read ADC IS %d\n\r", S4575272_REG_JOYSTICK_Y_READ());
+            xQueueSendToFront(signalMsgQ, ( void * ) &joyToSimulator, ( portTickType ) 1 );
+        }
+
+        
+
+		vTaskDelay(50);
 	}
 
 }

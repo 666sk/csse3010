@@ -56,6 +56,7 @@
 #define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 15 )
 #define CAG_SIMULATOR_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
 
+
 typedef struct caMessage {
     
     int type;
@@ -66,6 +67,15 @@ typedef struct caMessage {
 QueueHandle_t simulatorMsgQ;
 QueueSetHandle_t xQueueSet;
 QueueSetMemberHandle_t xActivatedMember;
+
+QueueHandle_t signalMsgQ;
+//QueueHandle_t signalMsgQ;
+
+typedef struct signalMsg {
+    
+    int xSignal;
+    int ySignal;
+} signalMsg_t;
 
 
 SemaphoreHandle_t displaySemaphore;

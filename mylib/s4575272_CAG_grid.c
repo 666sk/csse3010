@@ -23,7 +23,7 @@ void s4575272_tsk_CAG_grid_init(void) {
         (const signed char *) "TaskCAG_Grid",   // Text name for the task
         CAG_GRID_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
-        CAG_GRID_TASK_PRIORITY+2,              // Priority at which the task is created
+        CAG_GRID_TASK_PRIORITY+3,              // Priority at which the task is created
         &taskGrid);  
 }
 

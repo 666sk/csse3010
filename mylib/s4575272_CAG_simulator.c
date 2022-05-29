@@ -31,6 +31,7 @@ void s4575272TaskCAG_Simulator(void) {
   
 
     static uint32_t prevTime = 0;
+    uint32_t updateTime = 0;
     uint8_t x, y;  //grid coordinates
     uint8_t xIndex = 0; 
     uint8_t yIndex = 0;
@@ -44,8 +45,12 @@ void s4575272TaskCAG_Simulator(void) {
     caMessage_t msgFromMnem;
     simulatorMsgQ = xQueueCreate(10, sizeof(msgFromMnem));
 
+    signalMsg_t msgFromJoy;
+    signalMsgQ = xQueueCreate(10, sizeof(msgFromJoy));
+
 
     for (;;) {
+ 
 
         //Event Group Bits Handling
         uxBits = xEventGroupWaitBits(keyctrlEventGroup, KEYCTRL_EVENT, pdTRUE, pdFALSE, 10);
@@ -150,13 +155,52 @@ void s4575272TaskCAG_Simulator(void) {
         if (joyPbSemaphore != NULL) {	// press joystick pb clear display
 
 			if( xSemaphoreTake( joyPbSemaphore, 10 ) == pdTRUE ) {
-				BRD_LEDBlueToggle();
+				//BRD_LEDBlueToggle();
 				clearGrid();
 			}
 		}
 
+        if (xQueueReceive(signalMsgQ, &msgFromJoy, 1)) {
+
+            int xSig = msgFromJoy.xSignal;
+
+            int ySig = msgFromJoy.ySignal;
+
+            //debug_log("y received ADC IS %d\n\r", ySig );
+
+            if (xSig < 10) {
+
+                start = 0;
+            } else if (xSig > 4000) {
                 
-    if ((HAL_GetTick() - prevTime) > 950) {
+                start = 1;
+            }
+
+
+            if (ySig < 10) {
+
+                updateTime = 950;
+            } else if (ySig > 10 && ySig < 2000) {
+                
+                updateTime = 0.5 * ySig + 950;
+            } else if (ySig > 2000 && ySig < 2300) {
+
+                updateTime = 1950;
+            } else if (ySig > 2300 && ySig < 4000) {
+
+                BRD_LEDRedOn();
+                updateTime = 0.21 * msgFromJoy.ySignal + 1890;
+            } else if (ySig > 4000) {
+
+                updateTime = 9950;
+            }
+            BRD_LEDBlueToggle();
+        }
+        
+        //debug_log("update time is %d\n\r", updateTime);
+        
+
+    if ((HAL_GetTick() - prevTime) > updateTime) {
                 for (y = 0; y < 16; y++) {
 
                 //Store the info of neighbour number of each cell
@@ -203,7 +247,7 @@ void s4575272_tsk_CAG_simulator_init(void) {
         (const signed char *) "CAGSimulatorTask",   // Text name for the task
         CAG_SIMULATOR_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
-        CAG_SIMULATOR_TASK_PRIORITY+1,              // Priority at which the task is created
+        CAG_SIMULATOR_TASK_PRIORITY+2,              // Priority at which the task is created
         &taskSim);  
 
 }

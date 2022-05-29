@@ -170,10 +170,10 @@ int s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput) {
 
 	if (AdcHandleInput.Instance == (ADC_TypeDef *)(ADC1_BASE)) {
 
-		return ADC1->DR;
+		return ADC1->DR;    //X
 	} else if (AdcHandleInput.Instance == (ADC_TypeDef *)(ADC2_BASE)) {
-		
-		return ADC2->DR;
+		  
+		return ADC2->DR;    //Y
 	}
 }
 
