@@ -8,7 +8,16 @@
  ***************************************************************
  * EXTERNAL FUNCTIONS 
  ***************************************************************
- *
+ * void s4575272_tsk_CAG_mnemonic_init(void); - Initialise the mnemonic mode task
+ * void s4575272TaskCAG_Mnemonic(void); - The task of mnemonic mode
+ * void sendClear(caMessage_t* msgToSimulator); - Send clear command
+ * void sendStill(caMessage_t* msgToSimulator, char* pcOutputString); - Send Still command
+ * void sendOsc(caMessage_t* msgToSimulator, char* pcOutputString); - Send Osc command
+ * void sendGlider(caMessage_t* msgToSimulator, char* pcOutputString); - Send glider command
+ * void sendStart(caMessage_t* msgToSimulator); - Send start command
+ * void sendStop(caMessage_t* msgToSimulator); - Send stop command
+ * void sendDel(caMessage_t* msgToSimulator, char* pcOutputString); - Send Del command
+ * void driverCre(caMessage_t* msgToSimulator, char* pcOutputString); - Send Cre commans
  *************************************************************** 
  */
 

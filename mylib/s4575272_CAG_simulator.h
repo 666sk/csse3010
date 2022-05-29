@@ -11,6 +11,14 @@
  * s4575272_tsk_CAG_simulator_init(void) - The task of simulating the game of life
  * s4575272TaskCAG_Simulator(void) - Initialise the CAG Simulator task
  * nbr_count(int grid[16][64], int i, int j) - Count how many neighbours of a cell
+ * void drawBeacon(caMessage_t* msgFromMnem); - Draw Beacon model
+ * void drawBlock(caMessage_t* msgFromMnem); - Draw BLock model
+ * void drawBlinker(caMessage_t* msgFromMnem); - Draw Blinker model
+ * void drawToad(caMessage_t* msgFromMnem); - Draw Toad model
+ * void drawBeehive(caMessage_t* msgFromMnem); - Draw Beehive model
+ * void drawLoaf(caMessage_t* msgFromMnem); - Draw LOaf model
+ * void drawGlider(caMessage_t* msgFromMnem); - Draw Glider model
+ * void clearGrid(void); - Clear the grid
  *************************************************************** 
  */
 
@@ -58,7 +66,7 @@
 
 
 #define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 15 )
-#define CAG_SIMULATOR_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
+#define CAG_SIMULATOR_TASK_PRIORITY        ( tskIDLE_PRIORITY + 4 )
 
 
 typedef struct caMessage {

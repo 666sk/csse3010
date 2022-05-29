@@ -8,7 +8,16 @@
  ***************************************************************
  * EXTERNAL FUNCTIONS 
  ***************************************************************
- *
+ * void s4575272_tsk_CAG_mnemonic_init(void); - Initialise the mnemonic mode task
+ * void s4575272TaskCAG_Mnemonic(void); - The task of mnemonic mode
+ * void sendClear(caMessage_t* msgToSimulator); - Send clear command
+ * void sendStill(caMessage_t* msgToSimulator, char* pcOutputString); - Send Still command
+ * void sendOsc(caMessage_t* msgToSimulator, char* pcOutputString); - Send Osc command
+ * void sendGlider(caMessage_t* msgToSimulator, char* pcOutputString); - Send glider command
+ * void sendStart(caMessage_t* msgToSimulator); - Send start command
+ * void sendStop(caMessage_t* msgToSimulator); - Send stop command
+ * void sendDel(caMessage_t* msgToSimulator, char* pcOutputString); - Send Del command
+ * void driverCre(caMessage_t* msgToSimulator, char* pcOutputString); - Send Cre commans
  *************************************************************** 
  */
 
@@ -19,6 +28,7 @@
 //Initialize the task of mnemonic mode
 void s4575272_tsk_CAG_mnemonic_init(void) {
 
+	//Register CLI commands
     FreeRTOS_CLIRegisterCommand(&xStill);
 	FreeRTOS_CLIRegisterCommand(&xOsc);
 	FreeRTOS_CLIRegisterCommand(&xGlider);
@@ -112,26 +122,42 @@ void s4575272TaskCAG_Mnemonic(void) {
 
 					if (simulatorMsgQ != NULL) {
 
-						int sk = 0;
-
 						if (*(pcOutputString) == '1') {  //still
 
 							sendStill(&msgToSimulator, pcOutputString);
+							if (taskSim != NULL) {
+								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
+							}
 						} else if (*(pcOutputString) == '2') {  //osc
 							
 							sendOsc(&msgToSimulator, pcOutputString);
+							if (taskSim != NULL) {
+								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
+							}
 						} else if (*(pcOutputString) == '3') {     //glider
 							
 							sendGlider(&msgToSimulator, pcOutputString);
+							if (taskSim != NULL) {
+								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
+							}
 						} else if (*(pcOutputString) == '4') {    //start
 
 							sendStart(&msgToSimulator);
+							if (taskSim != NULL) {
+								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
+							}
 						} else if (*(pcOutputString) == '5') {    //stop
 
 							sendStop(&msgToSimulator);
+							if (taskSim != NULL) {
+								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
+							}
 						} else if (*(pcOutputString) == '6') {    //clear
 
 							sendClear(&msgToSimulator);
+							if (taskSim != NULL) {
+								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
+							}
 						} else if (*(pcOutputString) == '7') {    //del
 							
 							sendDel(&msgToSimulator, pcOutputString);
@@ -147,15 +173,9 @@ void s4575272TaskCAG_Mnemonic(void) {
 							vTaskList((char *)&pWriteBuffer);
 							debug_log("Task_Name  Task_State Priority Stack Number\n\r");
 							debug_log("%s\n\r", pWriteBuffer);
-						}
-						
-						if (taskSim != NULL) {
-							xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
-						}
-						
+						}	
 					}
 					
-
 				    vTaskDelay(5);	//Must delay between debug_printfs.
 				}
 
@@ -281,6 +301,7 @@ void sendStop(caMessage_t* msgToSimulator) {
 	msgToSimulator->cell_y = 0;
 }
 
+//Delete the specified driver
 void sendDel(caMessage_t* msgToSimulator, char* pcOutputString) {
 
 	char* info;
@@ -304,7 +325,7 @@ void sendDel(caMessage_t* msgToSimulator, char* pcOutputString) {
 	
 }
 
-
+//Create the specified driver
 void driverCre(caMessage_t* msgToSimulator, char* pcOutputString) {
 
 	char* info;
@@ -320,7 +341,7 @@ void driverCre(caMessage_t* msgToSimulator, char* pcOutputString) {
 				(const signed char *) "CAGSimulatorTask",   // Text name for the task
 				CAG_SIMULATOR_TASK_STACK_SIZE,            // Stack size in words, not bytes
 				NULL,                           // No Parameter needed
-				CAG_SIMULATOR_TASK_PRIORITY+2,              // Priority at which the task is created
+				CAG_SIMULATOR_TASK_PRIORITY,              // Priority at which the task is created
 				&taskSim);
 		}
 		xTaskResumeAll();

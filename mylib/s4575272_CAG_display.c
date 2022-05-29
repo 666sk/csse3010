@@ -16,6 +16,7 @@
 #include "s4575272_CAG_display.h"
 #include "s4575272_oled.h"
 #include "s4575272_CAG_simulator.h"
+
 //Initialise the CAG Display task
 void s4575272_tsk_CAG_display_init(void) {
 	portDISABLE_INTERRUPTS();
@@ -37,13 +38,11 @@ void s4575272TaskCAG_Display(void) {
 
     caMessage_t msgFromSimulator;
     displaySemaphore = xSemaphoreCreateBinary(); 
-    //simulatorMsgQ = xQueueCreate(10, sizeof(msgToSimulator));
-    xQueueAddToSet(displaySemaphore, xQueueSet);
 
 
     for (;;) {
-        if (taskSim != NULL) {
 
+        //if (taskSim != NULL) {
             ssd1306_Fill(Black);    //Clear Screen
             
             // if (taskSim != NULL) {
@@ -71,7 +70,7 @@ void s4575272TaskCAG_Display(void) {
             vTaskResume(taskSim);
             
             vTaskDelay(10);
-        }
+        //}
 	}
 }
 

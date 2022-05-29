@@ -35,7 +35,7 @@ void s4575272TaskCAG_Simulator(void) {
     uint8_t x, y;  //grid coordinates
     uint8_t xIndex = 0; 
     uint8_t yIndex = 0;
-    uint8_t cellSelect = 0;   //1 if select the cell
+    //uint8_t cellSelect = 0;   //1 if select the cell
     uint8_t start = 1;   //0 stop 1 start
     EventBits_t uxBits;
     keyctrlEventGroup = xEventGroupCreate();
@@ -138,41 +138,34 @@ void s4575272TaskCAG_Simulator(void) {
                 drawGlider(&msgFromMnem);
             } else if (msgFromMnem.type == START) {
 
-                debug_log("start Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
                 start = 1;
             } else if (msgFromMnem.type == STOP) {
 
-                debug_log("stop Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
                 start = 0;
             } else if (msgFromMnem.type == CLEAR) {
 
-                debug_log("stop Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
                 clearGrid();
-            } //else if (msgFromMnem.type == DEL_SIMULATOR) {
-
-            //     debug_log("Del simulator Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
-            //     delSimulator();
-            // }
+            }
 
         }
 
-        if (joyPbSemaphore != NULL) {	// press joystick pb clear display
+        // press joystick pb clear display
+        if (joyPbSemaphore != NULL) {	
 
 			if( xSemaphoreTake( joyPbSemaphore, 10 ) == pdTRUE ) {
-				//BRD_LEDBlueToggle();
+				
 				clearGrid();
 			}
 		}
 
+        //Receive joystick X and Y values
         if (xQueueReceive(signalMsgQ, &msgFromJoy, 1)) {
 
             int xSig = msgFromJoy.xSignal;
-
             int ySig = msgFromJoy.ySignal;
 
-            //debug_log("y received ADC IS %d\n\r", ySig );
-
-            if (xSig < 10) {
+            //Control the start of simulation
+            if (xSig < 10) {    
 
                 start = 0;
             } else if (xSig > 4000) {
@@ -180,8 +173,8 @@ void s4575272TaskCAG_Simulator(void) {
                 start = 1;
             }
 
-
-            if (ySig < 10) {
+            //Control the update time of simulation
+            if (ySig < 10) { 
 
                 updateTime = 950;
             } else if (ySig > 10 && ySig < 2000) {
@@ -200,42 +193,40 @@ void s4575272TaskCAG_Simulator(void) {
             BRD_LEDBlueToggle();
         }
         
-        //debug_log("update time is %d\n\r", updateTime);
-        
 
-    if ((HAL_GetTick() - prevTime) > updateTime) {
-                for (y = 0; y < 16; y++) {
+        if ((HAL_GetTick() - prevTime) > updateTime) {
+            for (y = 0; y < 16; y++) {
 
                 //Store the info of neighbour number of each cell
-                    for (x = 0; x < 64; x++) {
+                for (x = 0; x < 64; x++) {
 
-                        nbr_grid[y][x] = nbr_count(grid, y, x);
-                    }
+                    nbr_grid[y][x] = nbr_count(grid, y, x);
                 }
+            }
             
 
-                for (y = 0; y < 16; y++) {
+            for (y = 0; y < 16; y++) {
 
-                    for (x = 0; x < 64; x++) {
+                for (x = 0; x < 64; x++) {
 
-                        if (start == 1) {
+                    if (start == 1) {
                     
-                            if (grid[y][x]) {  //if the cell is alive
+                        if (grid[y][x]) {  //if the cell is alive
                     
-                                if (nbr_grid[y][x] <= 1 || nbr_grid[y][x] >= 4) {
-                                    grid[y][x] = 0;
-                                } 
-                            } else {    //if the cell is dead(no alive cell)
+                            if (nbr_grid[y][x] <= 1 || nbr_grid[y][x] >= 4) {
+                                grid[y][x] = 0;
+                            } 
+                        } else {    //if the cell is dead(no alive cell)
                     
-                                if (nbr_grid[y][x] == 3) {
-                                    grid[y][x] = 1;
-                                }
+                            if (nbr_grid[y][x] == 3) {
+                                grid[y][x] = 1;
                             }
                         }
                     }
                 }
-                prevTime = HAL_GetTick();
-                }
+            }
+            prevTime = HAL_GetTick();
+        }
 
         
         vTaskDelay(50);
@@ -250,7 +241,7 @@ void s4575272_tsk_CAG_simulator_init(void) {
         (const signed char *) "CAGSimulatorTask",   // Text name for the task
         CAG_SIMULATOR_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
-        CAG_SIMULATOR_TASK_PRIORITY+2,              // Priority at which the task is created
+        CAG_SIMULATOR_TASK_PRIORITY,              // Priority at which the task is created
         &taskSim);  
 
 }
@@ -314,19 +305,17 @@ int nbr_count(int grid[16][64], int i, int j) {
 //Draw a beacon model in the grid
 void drawBeacon(caMessage_t* msgFromMnem) {
 
-    debug_log("Beacon Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
     grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1; 
-    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+3] = 1;
-    grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+3] = 1;
-    grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+2] = 1; 
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
+    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 3] = 1;
+    grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 3] = 1;
+    grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 2] = 1; 
 }
 
 //Draw a blinker model in the grid
 void drawBlinker(caMessage_t* msgFromMnem) {
 
-    debug_log("Blinker Received: x=%d, y=%d\n\r",msgFromMnem->cell_x,msgFromMnem->cell_y);
     grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
     grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
     grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;   
@@ -335,59 +324,54 @@ void drawBlinker(caMessage_t* msgFromMnem) {
 //Draw a toad model in the grid
 void drawToad(caMessage_t* msgFromMnem) {
 
-    debug_log("Toad Received: x=%d, y=%d\n\r",msgFromMnem->cell_x,msgFromMnem->cell_y);
     grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
     grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;
     grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 3] = 1; 
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x + 2] = 1; 
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1; 
 }
 
 //Draw a block model in the grid
 void drawBlock(caMessage_t* msgFromMnem) {
 
-    debug_log("Block Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
     grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1; 
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x+1] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 1] = 1;
 }
 
 //Draw a beehive model in the grid
 void drawBeehive(caMessage_t* msgFromMnem) {
 
-    debug_log("Beehive Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+2] = 1;
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1; 
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x+3] = 1;
-    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+1] = 1;
-    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+2] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 3] = 1;
+    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 2] = 1;
 }
 
 //Draw a loaf model in the grid
 void drawLoaf(caMessage_t* msgFromMnem) {
 
-    debug_log("Loaf Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x+2] = 1; 
-    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+3] = 1;
-    grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+1] = 1;
-    grid[msgFromMnem->cell_y+3][msgFromMnem->cell_x+2] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1; 
+    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 3] = 1;
+    grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 2] = 1;
 }
 
 //Draw a glider model in the grid
 void drawGlider(caMessage_t* msgFromMnem) {
 
-    debug_log("Glider Received: x=%d, y=%d\n\r",msgFromMnem->cell_x, msgFromMnem->cell_y);
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x+1] = 1;
-    grid[msgFromMnem->cell_y+1][msgFromMnem->cell_x+2] = 1;
-    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+1] = 1;
-    grid[msgFromMnem->cell_y+2][msgFromMnem->cell_x+2] = 1;
+    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1;
+    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x] = 1;
+    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 1] = 1;
+    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 2] = 1;
 }
 
 //Clear the entire grid

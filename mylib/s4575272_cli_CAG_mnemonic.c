@@ -7,7 +7,16 @@
   *
   ******************************************************************************
   * EXTERNAL FUNCTIONS 
-  * 
+  * BaseType_t prvStillCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+  * BaseType_t prvOscCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+  * BaseType_t prvGliderCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+  * BaseType_t prvStartCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+  * BaseType_t prvStopCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+  * BaseType_t prvClearCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+  * BaseType_t prvDelCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+  * BaseType_t prvCreCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+  * BaseType_t prvSystemCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+  * BaseType_t prvUsageCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
   ******************************************************************************
   */
 
@@ -85,7 +94,7 @@ CLI_Command_Definition_t xUsage = {
 };
 
 
-
+//The CLI command of still command
 extern BaseType_t prvStillCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
   	long lParam_len;
 	const char *cCmd_string;
@@ -102,7 +111,7 @@ extern BaseType_t prvStillCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 
 }
 
-
+//The CLI command of osc command
 extern BaseType_t prvOscCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
   	long lParam_len;
 	const char *cCmd_string;
@@ -118,6 +127,7 @@ extern BaseType_t prvOscCommand(char *pcWriteBuffer, size_t xWriteBufferLen, con
 	return pdFALSE;
 }
 
+//The CLI command of glider command
 extern BaseType_t prvGliderCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
 	long lParam_len;
 	const char *cCmd_string;
@@ -133,6 +143,7 @@ extern BaseType_t prvGliderCommand(char *pcWriteBuffer, size_t xWriteBufferLen, 
 	return pdFALSE;
 }
 
+//The CLI command of start command
 extern BaseType_t prvStartCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
 	long lParam_len;
 	const char *cCmd_string;
@@ -148,6 +159,7 @@ extern BaseType_t prvStartCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 	return pdFALSE;
 }
 
+//The CLI command of stop command
 extern BaseType_t prvStopCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
 	long lParam_len;
 	const char *cCmd_string;
@@ -163,6 +175,7 @@ extern BaseType_t prvStopCommand(char *pcWriteBuffer, size_t xWriteBufferLen, co
 	return pdFALSE;
 }
 
+//The CLI command of clear command
 extern BaseType_t prvClearCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
 	long lParam_len;
 	const char *cCmd_string;
@@ -178,6 +191,7 @@ extern BaseType_t prvClearCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 	return pdFALSE;
 }
 
+//The CLI command of del command
 extern BaseType_t prvDelCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
   	long lParam_len;
 	const char *cCmd_string;
@@ -194,6 +208,7 @@ extern BaseType_t prvDelCommand(char *pcWriteBuffer, size_t xWriteBufferLen, con
 
 }
 
+//The CLI command of cre command
 extern BaseType_t prvCreCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
   	long lParam_len;
 	const char *cCmd_string;
@@ -210,7 +225,7 @@ extern BaseType_t prvCreCommand(char *pcWriteBuffer, size_t xWriteBufferLen, con
 
 }
 
-
+//The CLI command of system command
 extern BaseType_t prvSystemCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
 	long lParam_len;
 	const char *cCmd_string;
@@ -226,6 +241,7 @@ extern BaseType_t prvSystemCommand(char *pcWriteBuffer, size_t xWriteBufferLen, 
 	return pdFALSE;
 }
 
+//The CLI command of usage command
 extern BaseType_t prvUsageCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
 	long lParam_len;
 	const char *cCmd_string;
