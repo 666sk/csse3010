@@ -28,6 +28,9 @@ extern BaseType_t prvStopCommand(char *pcWriteBuffer, size_t xWriteBufferLen, co
 extern BaseType_t prvClearCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
 extern BaseType_t prvDelCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
 extern BaseType_t prvCreCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+extern BaseType_t prvSystemCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+extern BaseType_t prvUsageCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+
 
 extern CLI_Command_Definition_t xStill;
 extern CLI_Command_Definition_t xOsc;
@@ -37,6 +40,8 @@ extern CLI_Command_Definition_t xStop;
 extern CLI_Command_Definition_t xClear;
 extern CLI_Command_Definition_t xDel;
 extern CLI_Command_Definition_t xCre;
+extern CLI_Command_Definition_t xSystem;
+extern CLI_Command_Definition_t xUsage;
 
 
 #endif

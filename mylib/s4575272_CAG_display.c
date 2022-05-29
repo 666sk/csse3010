@@ -42,27 +42,36 @@ void s4575272TaskCAG_Display(void) {
 
 
     for (;;) {
-        //vPortEnterCritical();
-        ssd1306_Fill(Black);    //Clear Screen
-        //BRD_LEDRedOn();  //indicates display working for now
-        vTaskSuspend(taskSim);
-        for (int i = 0; i < 16; i++) {
+        if (taskSim != NULL) {
 
-            for (int j = 0; j < 64; j++) {
+            ssd1306_Fill(Black);    //Clear Screen
             
-                if (grid[i][j]) {  //if there is a cell alive display it as 2x2 pixel
-                    
-                    ssd1306_DrawPixel(2 * j, 2 * i, SSD1306_WHITE);
-                    ssd1306_DrawPixel(2 * j, 2 * i + 1, SSD1306_WHITE);
-                    ssd1306_DrawPixel(2 * j + 1, 2 * i, SSD1306_WHITE);
-                    ssd1306_DrawPixel(2 * j + 1, 2 * i + 1, SSD1306_WHITE);
+            // if (taskSim != NULL) {
+            //     vTaskSuspend(taskSim);
+            // }
+            vTaskSuspend(taskSim);
+            for (int i = 0; i < 16; i++) {
+
+                for (int j = 0; j < 64; j++) {
+                
+                    if (grid[i][j]) {  //if there is a cell alive display it as 2x2 pixel
+                        
+                        ssd1306_DrawPixel(2 * j, 2 * i, SSD1306_WHITE);
+                        ssd1306_DrawPixel(2 * j, 2 * i + 1, SSD1306_WHITE);
+                        ssd1306_DrawPixel(2 * j + 1, 2 * i, SSD1306_WHITE);
+                        ssd1306_DrawPixel(2 * j + 1, 2 * i + 1, SSD1306_WHITE);
+                    }
                 }
             }
+            ssd1306_UpdateScreen();
+
+            // if (taskSim != NULL) {
+            //     vTaskResume(taskSim);
+            // }
+            vTaskResume(taskSim);
+            
+            vTaskDelay(10);
         }
-        ssd1306_UpdateScreen();
-    
-        vTaskResume(taskSim);
-		vTaskDelay(10);
 	}
 }
 

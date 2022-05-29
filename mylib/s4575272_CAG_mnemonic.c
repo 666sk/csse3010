@@ -27,6 +27,8 @@ void s4575272_tsk_CAG_mnemonic_init(void) {
 	FreeRTOS_CLIRegisterCommand(&xClear);
 	FreeRTOS_CLIRegisterCommand(&xDel);
 	FreeRTOS_CLIRegisterCommand(&xCre);
+	FreeRTOS_CLIRegisterCommand(&xSystem);
+	FreeRTOS_CLIRegisterCommand(&xUsage);
     
     xTaskCreate(
         (void *) &s4575272TaskCAG_Mnemonic,     // Function that implements the task
@@ -110,6 +112,8 @@ void s4575272TaskCAG_Mnemonic(void) {
 
 					if (simulatorMsgQ != NULL) {
 
+						int sk = 0;
+
 						if (*(pcOutputString) == '1') {  //still
 
 							sendStill(&msgToSimulator, pcOutputString);
@@ -128,10 +132,27 @@ void s4575272TaskCAG_Mnemonic(void) {
 						} else if (*(pcOutputString) == '6') {    //clear
 
 							sendClear(&msgToSimulator);
-						}
- 
+						} else if (*(pcOutputString) == '7') {    //del
+							
+							sendDel(&msgToSimulator, pcOutputString);
+						} else if (*(pcOutputString) == '8') {    //cre
 
-						xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
+							driverCre(&msgToSimulator, pcOutputString);
+						} else if (*(pcOutputString) == '9') {    //system
+
+							debug_log("The system time is %dms\n\r", HAL_GetTick());
+						} else if (*(pcOutputString) == '0') {    //usage
+
+							char pWriteBuffer[2048];
+							vTaskList((char *)&pWriteBuffer);
+							debug_log("Task_Name  Task_State Priority Stack Number\n\r");
+							debug_log("%s\n\r", pWriteBuffer);
+						}
+						
+						if (taskSim != NULL) {
+							xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
+						}
+						
 					}
 					
 
@@ -258,4 +279,63 @@ void sendStop(caMessage_t* msgToSimulator) {
 	msgToSimulator->type = STOP;
 	msgToSimulator->cell_x = 0;
 	msgToSimulator->cell_y = 0;
+}
+
+void sendDel(caMessage_t* msgToSimulator, char* pcOutputString) {
+
+	char* info;
+	int type;
+	info = strtok(pcOutputString, "<");
+	info = strtok(NULL, "<");
+	type = *info - 48;
+	if (type == 0) {
+		vTaskSuspendAll();
+		if (taskSim != NULL) {
+        	vTaskDelete(taskSim);
+    	}
+		xTaskResumeAll();
+	} else if (type == 1) {
+		vTaskSuspendAll();
+		if (taskJoystick != NULL) {
+        	vTaskDelete(taskJoystick);
+    	}
+		xTaskResumeAll();
+	}
+	
+}
+
+
+void driverCre(caMessage_t* msgToSimulator, char* pcOutputString) {
+
+	char* info;
+	int type;
+	info = strtok(pcOutputString, "<");
+	info = strtok(NULL, "<");
+	type = *info - 48;
+	if (type == 0) {
+		vTaskSuspendAll();
+		if (taskSim == NULL) {
+        	xTaskCreate(
+				(void *) &s4575272TaskCAG_Simulator,     // Function that implements the task
+				(const signed char *) "CAGSimulatorTask",   // Text name for the task
+				CAG_SIMULATOR_TASK_STACK_SIZE,            // Stack size in words, not bytes
+				NULL,                           // No Parameter needed
+				CAG_SIMULATOR_TASK_PRIORITY+2,              // Priority at which the task is created
+				&taskSim);
+		}
+		xTaskResumeAll();
+	} else if (type == 1) {
+		vTaskSuspendAll();
+		if (taskJoystick = NULL) {
+        	xTaskCreate(
+				(void *) &s4575272TaskCAG_Joystick,     // Function that implements the task
+				(const signed char *) "CAGJoystickTask",   // Text name for the task
+				CAG_JOYSTICK_TASK_STACK_SIZE,            // Stack size in words, not bytes
+				NULL,                           // No Parameter needed
+				CAG_JOYSTICK_TASK_PRIORITY + 2,              // Priority at which the task is created
+				&taskJoystick);
+			}
+		xTaskResumeAll();
+	}
+	
 }

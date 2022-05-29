@@ -70,6 +70,20 @@ CLI_Command_Definition_t xCre = {
 	1				
 };
 
+CLI_Command_Definition_t xSystem = {
+  	"system",					
+	"system\r\n",	
+	prvSystemCommand,					
+	0				
+};
+
+CLI_Command_Definition_t xUsage = {
+  	"usage",					
+	"usage\r\n",	
+	prvUsageCommand,					
+	0				
+};
+
 
 
 extern BaseType_t prvStillCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
@@ -194,4 +208,35 @@ extern BaseType_t prvCreCommand(char *pcWriteBuffer, size_t xWriteBufferLen, con
 	/* Only return pdTRUE, if more strings need to be printed */
 	return pdFALSE;
 
+}
+
+
+extern BaseType_t prvSystemCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
+	long lParam_len;
+	const char *cCmd_string;
+
+	/* Get parameters from command string */
+	cCmd_string = FreeRTOS_CLIGetParameter(pcCommandString, 0, &lParam_len);
+
+	/* Write command echo output string to write buffer. */
+	xWriteBufferLen = sprintf((char *) pcWriteBuffer, "9%s\n\r", cCmd_string);
+
+	/* Return pdFALSE, as there are no more strings to return */
+	/* Only return pdTRUE, if more strings need to be printed */
+	return pdFALSE;
+}
+
+extern BaseType_t prvUsageCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
+	long lParam_len;
+	const char *cCmd_string;
+
+	/* Get parameters from command string */
+	cCmd_string = FreeRTOS_CLIGetParameter(pcCommandString, 0, &lParam_len);
+
+	/* Write command echo output string to write buffer. */
+	xWriteBufferLen = sprintf((char *) pcWriteBuffer, "0%s\n\r", cCmd_string);
+
+	/* Return pdFALSE, as there are no more strings to return */
+	/* Only return pdTRUE, if more strings need to be printed */
+	return pdFALSE;
 }

@@ -148,7 +148,11 @@ void s4575272TaskCAG_Simulator(void) {
 
                 debug_log("stop Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
                 clearGrid();
-            }
+            } //else if (msgFromMnem.type == DEL_SIMULATOR) {
+
+            //     debug_log("Del simulator Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
+            //     delSimulator();
+            // }
 
         }
 
@@ -188,7 +192,6 @@ void s4575272TaskCAG_Simulator(void) {
                 updateTime = 1950;
             } else if (ySig > 2300 && ySig < 4000) {
 
-                BRD_LEDRedOn();
                 updateTime = 0.21 * msgFromJoy.ySignal + 1890;
             } else if (ySig > 4000) {
 
@@ -393,6 +396,13 @@ void clearGrid(void) {
        for (int j = 0; j < 64; j++) {
            grid[i][j] = 0;
        }
+    }
+}
+
+//Delete the simulator driver
+void delSimulator(void) {
+    if (taskSim != NULL) {
+        vTaskDelete(taskSim);
     }
 }
 

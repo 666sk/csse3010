@@ -17,6 +17,7 @@
 #define __S4575272_CAG_mnemonic_H__
 
 #include "s4575272_CAG_simulator.h"
+#include "s4575272_CAG_joystick.h"
 #include <stdlib.h>
 #include "string.h"
 
@@ -33,5 +34,7 @@ void sendOsc(caMessage_t* msgToSimulator, char* pcOutputString);
 void sendGlider(caMessage_t* msgToSimulator, char* pcOutputString);
 void sendStart(caMessage_t* msgToSimulator);
 void sendStop(caMessage_t* msgToSimulator);
+void sendDel(caMessage_t* msgToSimulator, char* pcOutputString);
+void driverCre(caMessage_t* msgToSimulator, char* pcOutputString);
 
 #endif
