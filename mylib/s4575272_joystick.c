@@ -26,7 +26,7 @@
 #include "queue.h"
 #include "semphr.h"
 
-static uint32_t prevTime = 0;
+static uint32_t prevsTime = 0;
 ADC_HandleTypeDef AdcHandle1,AdcHandle2;
 ADC_ChannelConfTypeDef AdcChanConfig1,AdcChanConfig2;
 
@@ -58,25 +58,25 @@ extern void s4575272_reg_joystick_pb_isr(void) {
   //currentTime = HAL_GetTick();
 
   //Debouncing process
-  if ((HAL_GetTick() - prevTime) > 200) {
+  if ((HAL_GetTick() - prevsTime) > 200) {
 
     if ((GPIOA->IDR & (0x01 << 3)) == (0x00 << 3)) {
 		
-		// BaseType_t xHigherPriorityTaskWoken;
+		BaseType_t xHigherPriorityTaskWoken;
 
-		// xHigherPriorityTaskWoken = pdFALSE;
-		// if (pbSemaphore != NULL) {	// Check if semaphore exists 
-		// 	xSemaphoreGiveFromISR( pbSemaphore, &xHigherPriorityTaskWoken );		// Send semaphore from ISR
-		// }
+		xHigherPriorityTaskWoken = pdFALSE;
+		if (joyPbSemaphore != NULL) {	// Check if semaphore exists 
+			xSemaphoreGiveFromISR( joyPbSemaphore, &xHigherPriorityTaskWoken );		// Send semaphore from ISR
+		}
 
-		// // Perform context switching, if required.
-		// portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+		// Perform context switching, if required.
+		portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 
 
         joystick_press_counter++;
     }
 
-  prevTime = HAL_GetTick();
+  	prevsTime = HAL_GetTick();
   }
 }
 
@@ -185,7 +185,7 @@ int s4575272_joystick_readxy(ADC_HandleTypeDef AdcHandleInput) {
 
 void s4575272TaskJoystick(void) {
 
-	pbSemaphore = xSemaphoreCreateBinary();
+	joyPbSemaphore = xSemaphoreCreateBinary();
 	s4575272_reg_joystick_pb_init();
 	
 	uint8_t mode = 1;
@@ -194,9 +194,9 @@ void s4575272TaskJoystick(void) {
 
 	for (;;) {
 		
-		if (pbSemaphore != NULL) {	// Check if semaphore exists
+		if (joyPbSemaphore != NULL) {	// Check if semaphore exists
 
-			if( xSemaphoreTake( pbSemaphore, 10 ) == pdTRUE ) {
+			if( xSemaphoreTake( joyPbSemaphore, 10 ) == pdTRUE ) {
 				
 				if (sendToLeftQ != NULL) {
 					xQueueSendToFront(sendToLeftQ, ( void * ) &mode, ( portTickType ) 10 );

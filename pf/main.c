@@ -26,6 +26,7 @@ int main(void) {
   
   s4575272_tsk_CAG_display_init();
   
+  s4575272_tsk_CAG_joystick_init();
   
   vTaskStartScheduler();
   return 0;

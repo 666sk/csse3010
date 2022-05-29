@@ -34,7 +34,7 @@
 #define OLEDTASK_STACK_SIZE		( configMINIMAL_STACK_SIZE * 2 )
 
 
-SemaphoreHandle_t pbSemaphore;	// Semaphore for pushbutton interrupt
+SemaphoreHandle_t joyPbSemaphore;	// Semaphore for pushbutton interrupt
 QueueHandle_t sendToLeftQ;
 QueueHandle_t sendToRightQ;
 

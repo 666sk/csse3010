@@ -26,6 +26,8 @@ extern BaseType_t prvGliderCommand(char *pcWriteBuffer, size_t xWriteBufferLen, 
 extern BaseType_t prvStartCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
 extern BaseType_t prvStopCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
 extern BaseType_t prvClearCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+extern BaseType_t prvDelCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
+extern BaseType_t prvCreCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString );
 
 extern CLI_Command_Definition_t xStill;
 extern CLI_Command_Definition_t xOsc;

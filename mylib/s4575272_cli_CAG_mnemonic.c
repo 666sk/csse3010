@@ -56,6 +56,21 @@ CLI_Command_Definition_t xClear = {
 	0					
 };
 
+CLI_Command_Definition_t xDel = {
+  	"del",					
+	"del <type>\r\n",	
+	prvDelCommand,					
+	1				
+};
+
+CLI_Command_Definition_t xCre = {
+  	"cre",					
+	"cre <type>\r\n",	
+	prvCreCommand,					
+	1				
+};
+
+
 
 extern BaseType_t prvStillCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
   	long lParam_len;
@@ -147,4 +162,36 @@ extern BaseType_t prvClearCommand(char *pcWriteBuffer, size_t xWriteBufferLen, c
 	/* Return pdFALSE, as there are no more strings to return */
 	/* Only return pdTRUE, if more strings need to be printed */
 	return pdFALSE;
+}
+
+extern BaseType_t prvDelCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
+  	long lParam_len;
+	const char *cCmd_string;
+
+	/* Get parameters from command string */
+	cCmd_string = FreeRTOS_CLIGetParameter(pcCommandString, 1, &lParam_len);
+
+	/* Write command echo output string to write buffer. */
+	xWriteBufferLen = sprintf((char *) pcWriteBuffer, "7%s\n\r", cCmd_string);
+
+	/* Return pdFALSE, as there are no more strings to return */
+	/* Only return pdTRUE, if more strings need to be printed */
+	return pdFALSE;
+
+}
+
+extern BaseType_t prvCreCommand(char *pcWriteBuffer, size_t xWriteBufferLen, const char *pcCommandString ) {
+  	long lParam_len;
+	const char *cCmd_string;
+
+	/* Get parameters from command string */
+	cCmd_string = FreeRTOS_CLIGetParameter(pcCommandString, 1, &lParam_len);
+
+	/* Write command echo output string to write buffer. */
+	xWriteBufferLen = sprintf((char *) pcWriteBuffer, "8%s\n\r", cCmd_string);
+
+	/* Return pdFALSE, as there are no more strings to return */
+	/* Only return pdTRUE, if more strings need to be printed */
+	return pdFALSE;
+
 }

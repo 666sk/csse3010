@@ -15,27 +15,20 @@
  */
 
 #include "s4575272_CAG_simulator.h"
+
 //The task of simulating the game of life
 void s4575272TaskCAG_Simulator(void) {
     BRD_LEDInit();
     hardware_init();  //pb 
-
     grid[16][64] = 0;
-    //memset grid
-    //for (int i = 0; i < 16; i++) {
-    //    for (int j = 0; j < 64; j++) {
-    //        grid[i][j] = 0;
-    //    }
-    //}
-
+    
     for (int a = 30; a < 33; a++) {
         grid[12][a] = 1;
     }
     
     int nbr_grid[16][64];   
     nbr_grid[16][64] = 0;
-    //int nbr_grid[16][64] = {0};
-
+  
 
     static uint32_t prevTime = 0;
     uint8_t x, y;  //grid coordinates
@@ -46,13 +39,11 @@ void s4575272TaskCAG_Simulator(void) {
     EventBits_t uxBits;
     keyctrlEventGroup = xEventGroupCreate();
 
-    
+    joyPbSemaphore = xSemaphoreCreateBinary();
 
     caMessage_t msgFromMnem;
-  
     simulatorMsgQ = xQueueCreate(10, sizeof(msgFromMnem));
 
-   
 
     for (;;) {
 
@@ -60,34 +51,40 @@ void s4575272TaskCAG_Simulator(void) {
         uxBits = xEventGroupWaitBits(keyctrlEventGroup, KEYCTRL_EVENT, pdTRUE, pdFALSE, 10);
 
         if ((uxBits & EVT_KEY_W) != 0) {    //if 'W pressed' detected
+
             if (yIndex > 0) {
                 yIndex += (-1);
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_W);
 		} else if ((uxBits & EVT_KEY_A) != 0) {     //if 'A pressed' detected
+
             if (xIndex > 0) {
                 xIndex += (-1);
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_A);
         } else if ((uxBits & EVT_KEY_S) != 0) {     //if 'S pressed' detected
+
             if (yIndex < 15) {
                 yIndex += 1;
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_S);
         } else if ((uxBits & EVT_KEY_D) != 0) {     //if 'D pressed' detected
+
             if (xIndex < 63) {
                 xIndex += 1;
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_D);
         } else if ((uxBits & EVT_KEY_P) != 0) {     //if 'P pressed' detected
+
             start = ~start & 0x01;
             debug_log("Toggle Start/Stop!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_P);
         } else if ((uxBits & EVT_KEY_O) != 0) {     //if 'O pressed' detected
+
             xIndex = 0;
             yIndex = 0;
             debug_log("Move to Origin!\n\r");
@@ -95,11 +92,7 @@ void s4575272TaskCAG_Simulator(void) {
         } else if ((uxBits & EVT_KEY_C) != 0) {     //if 'C pressed' detected
             
             debug_log("Clear Display!\n\r");
-            for (y = 0; y < 16; y++) {
-                for (x = 0; x < 64; x++) {
-                    grid[y][x] = 0;
-                }
-            }
+            clearGrid();
             uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_C);
         } else if ((uxBits & EVT_KEY_X) != 0) {     //if 'X pressed' detected
             
@@ -139,9 +132,11 @@ void s4575272TaskCAG_Simulator(void) {
 
                 drawGlider(&msgFromMnem);
             } else if (msgFromMnem.type == START) {
+
                 debug_log("start Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
                 start = 1;
             } else if (msgFromMnem.type == STOP) {
+
                 debug_log("stop Received: x=%d, y=%d\n\r",msgFromMnem.cell_x,msgFromMnem.cell_y);
                 start = 0;
             } else if (msgFromMnem.type == CLEAR) {
@@ -151,6 +146,14 @@ void s4575272TaskCAG_Simulator(void) {
             }
 
         }
+
+        if (joyPbSemaphore != NULL) {	// press joystick pb clear display
+
+			if( xSemaphoreTake( joyPbSemaphore, 10 ) == pdTRUE ) {
+				BRD_LEDBlueToggle();
+				clearGrid();
+			}
+		}
 
                 
     if ((HAL_GetTick() - prevTime) > 950) {

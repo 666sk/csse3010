@@ -25,6 +25,8 @@ void s4575272_tsk_CAG_mnemonic_init(void) {
 	FreeRTOS_CLIRegisterCommand(&xStart);
 	FreeRTOS_CLIRegisterCommand(&xStop);
 	FreeRTOS_CLIRegisterCommand(&xClear);
+	FreeRTOS_CLIRegisterCommand(&xDel);
+	FreeRTOS_CLIRegisterCommand(&xCre);
     
     xTaskCreate(
         (void *) &s4575272TaskCAG_Mnemonic,     // Function that implements the task

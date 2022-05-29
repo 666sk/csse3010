@@ -25,6 +25,7 @@
 #include "semphr.h"
 #include "event_groups.h"
 #include "debug_log.h"
+#include "s4575272_joystick.h"
 
 #define DEAD_CELL 0x10
 #define ALIVE_CELL 0x11
@@ -79,6 +80,7 @@ int grid[16][64];  //the core global grid that performs the simulation
 TaskHandle_t taskSim;
 TaskHandle_t taskGrid;
 TaskHandle_t taskMnem;
+TaskHandle_t taskJoystick;
 
 void hardware_init(void);
 void pb_callback(uint16_t GPIO_Pin);
