@@ -112,13 +112,17 @@ void s4575272TaskCAG_Mnemonic(void) {
 					/* Returns pdFALSE, when all strings have been returned */
 					xReturned = FreeRTOS_CLIProcessCommand( cInputString, pcOutputString, configCOMMAND_INT_MAX_OUTPUT_SIZE );
 
+					//debug_log("pcOutputString is %s, cInputString is %s\n\r", pcOutputString, cInputString);
+
 					/* Display CLI command output string (not thread safe) */
 					//Doing queue stuff
-					portENTER_CRITICAL();
-					for (i = 0; i < (int) strlen(pcOutputString); i++) {
-						debug_putc(*(pcOutputString + i));
+					if (*(cInputString) == 'h') {
+						portENTER_CRITICAL();
+						for (i = 0; i < (int) strlen(pcOutputString); i++) {
+							debug_putc(*(pcOutputString + i));
+						}
+						portEXIT_CRITICAL();
 					}
-					portEXIT_CRITICAL();
 
 					if (simulatorMsgQ != NULL) {
 

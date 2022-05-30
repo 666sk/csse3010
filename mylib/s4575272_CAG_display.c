@@ -24,9 +24,9 @@ void s4575272_tsk_CAG_display_init(void) {
     xTaskCreate(
         (void *) &s4575272TaskCAG_Display,     // Function that implements the task
         (const signed char *) "TaskCAG_Display",   // Text name for the task
-        OLEDTASK_STACK_SIZE * 5,            // Stack size in words, not bytes
+        CAG_OLED_TASK_STACK_SIZE,            // Stack size in words, not bytes
         NULL,                           // No Parameter needed
-        OLEDTASK_PRIORITY+1,              // Priority at which the task is created
+        CAG_OLED_TASK_PRIORITY,              // Priority at which the task is created
         NULL);                          // Used to pass out the created task's handle
 	portENABLE_INTERRUPTS();
 }

@@ -77,10 +77,10 @@ typedef struct caMessage {
 } caMessage_t;
 
 QueueHandle_t simulatorMsgQ;
-QueueSetHandle_t xQueueSet;
-QueueSetMemberHandle_t xActivatedMember;
-
+//QueueSetHandle_t xQueueSet;
+//QueueSetMemberHandle_t xActivatedMember;
 QueueHandle_t signalMsgQ;
+
 //QueueHandle_t signalMsgQ;
 
 typedef struct signalMsg {
@@ -96,7 +96,10 @@ SemaphoreHandle_t pbSemaphore;	// Semaphore for pushbutton interrupt
 
 EventGroupHandle_t keyctrlEventGroup;
 
+
+
 int grid[16][64];  //the core global grid that performs the simulation
+static uint32_t prevTime1 = 0;  //Debouncing for on board pushbutton
 
 
 TaskHandle_t taskSim;

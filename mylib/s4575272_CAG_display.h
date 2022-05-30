@@ -8,6 +8,7 @@
  ***************************************************************
  * EXTERNAL FUNCTIONS 
  ***************************************************************
+ * s4575272_reg_oled_init(void); - Initialise the oled peripheral
  * s4575272_tsk_CAG_display_init(void) - Initialise the CAG Display task
  * s4575272TaskCAG_Display(void) - The task of displaying the simulation
  *************************************************************** 
@@ -21,6 +22,9 @@
 #include "fonts.h"
 #include "s4575272_oled.h"
 #include "s4575272_CAG_simulator.h"
+
+#define CAG_OLED_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 10 )
+#define CAG_OLED_TASK_PRIORITY        ( tskIDLE_PRIORITY + 3 )
 
 QueueHandle_t displayMsgQ;
 

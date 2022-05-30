@@ -29,14 +29,13 @@ void s4575272TaskCAG_Simulator(void) {
     int nbr_grid[16][64];   
     nbr_grid[16][64] = 0;
   
-
     static uint32_t prevTime = 0;
     uint32_t updateTime = 0;
     uint8_t x, y;  //grid coordinates
     uint8_t xIndex = 0; 
     uint8_t yIndex = 0;
-    //uint8_t cellSelect = 0;   //1 if select the cell
     uint8_t start = 1;   //0 stop 1 start
+
     EventBits_t uxBits;
     keyctrlEventGroup = xEventGroupCreate();
 
@@ -48,10 +47,8 @@ void s4575272TaskCAG_Simulator(void) {
     signalMsg_t msgFromJoy;
     signalMsgQ = xQueueCreate(10, sizeof(msgFromJoy));
 
-
     for (;;) {
  
-
         //Event Group Bits Handling
         uxBits = xEventGroupWaitBits(keyctrlEventGroup, KEYCTRL_EVENT, pdTRUE, pdFALSE, 10);
 
@@ -204,7 +201,6 @@ void s4575272TaskCAG_Simulator(void) {
                 }
             }
             
-
             for (y = 0; y < 16; y++) {
 
                 for (x = 0; x < 64; x++) {
@@ -228,7 +224,6 @@ void s4575272TaskCAG_Simulator(void) {
             prevTime = HAL_GetTick();
         }
 
-        
         vTaskDelay(50);
     }
 }
@@ -426,19 +421,24 @@ void pb_callback(uint16_t GPIO_Pin)
 {
 	BaseType_t xHigherPriorityTaskWoken;
 
-	if (GPIO_Pin == 13) {
+    if ((HAL_GetTick() - prevTime1) > 200) {
 
-		// Is it time for another Task() to run?
-		xHigherPriorityTaskWoken = pdFALSE;
+        if (GPIO_Pin == 13) {
 
-        //mode = 1 - mode; //toggle mode
-		if (pbSemaphore != NULL) {	// Check if semaphore exists 
-			xSemaphoreGiveFromISR(pbSemaphore, &xHigherPriorityTaskWoken );		// Give PB Semaphore from ISR
-		}
+            // Is it time for another Task() to run?
+            xHigherPriorityTaskWoken = pdFALSE;
 
-		// Perform context switching, if required.
-		portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-	}
+            //mode = 1 - mode; //toggle mode
+            if (pbSemaphore != NULL) {	// Check if semaphore exists 
+                xSemaphoreGiveFromISR(pbSemaphore, &xHigherPriorityTaskWoken );		// Give PB Semaphore from ISR
+            }
+
+            // Perform context switching, if required.
+            portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+        }
+
+        prevTime1 = HAL_GetTick();
+    }
 }
 
 /*
