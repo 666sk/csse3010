@@ -18,15 +18,15 @@
 
 //The task of simulating the game of life
 void s4575272TaskCAG_Simulator(void) {
-    BRD_LEDInit();
+    
     hardware_init();  //pb 
-    grid[16][64] = 0;
+    clearGrid();
     
-    for (int a = 30; a < 33; a++) {
-        grid[12][a] = 1;
-    }
+    // for (int a = 30; a < 33; a++) {
+    //     grid[12][a] = 1;
+    // }
     
-    int nbr_grid[16][64];   
+    int nbr_grid[16][64];  
     nbr_grid[16][64] = 0;
   
     static uint32_t prevTime = 0;

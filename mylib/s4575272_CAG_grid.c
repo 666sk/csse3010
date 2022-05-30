@@ -49,20 +49,18 @@ void s4575272TaskCAG_Grid(void) {
     char recvChar;   //Receiving chars from keyboard
     uint8_t xIndex = 0; 
     uint8_t yIndex = 0;   //indicates the current X and Y values used for LED Bar display cursor location
-    mode = 1;   //1 is grid mode, 0 is mnemonic mode
+  
     for (;;) {
 
-        if (mode){
+        BRD_LEDGreenOn();
 
-            BRD_LEDGreenOn();
-
-            if (pbSemaphore != NULL) {	
-                if ( xSemaphoreTake(pbSemaphore, 10 ) == pdTRUE ) {
+        if (pbSemaphore != NULL) {	
+            if ( xSemaphoreTake(pbSemaphore, 10 ) == pdTRUE ) {
                 
-                    vTaskResume(taskMnem);
-                    vTaskSuspend(NULL);
-                }
+                vTaskResume(taskMnem);
+                vTaskSuspend(NULL);
             }
+        }
         
        
         if (((recvChar = BRD_debuguart_getc()) != '\0')) {
@@ -73,8 +71,6 @@ void s4575272TaskCAG_Grid(void) {
             
         }
 
-    
-    }
         vTaskDelay(100);
     }
 
