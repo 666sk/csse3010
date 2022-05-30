@@ -115,7 +115,7 @@ void s4575272TaskCAG_Mnemonic(void) {
 					//Doing queue stuff
 					
 						portENTER_CRITICAL();
-						if (*(cInputString) == 'h') {
+						if ((*(cInputString) == 'h') || (*(pcOutputString) == 'I')) {
 							for (i = 0; i < (int) strlen(pcOutputString); i++) {
 								debug_putc(*(pcOutputString + i));
 							}
@@ -169,7 +169,7 @@ void s4575272TaskCAG_Mnemonic(void) {
 
 							char pWriteBuffer[2048];
 							vTaskList((char *)&pWriteBuffer);
-							debug_log("Task_Name  Task_State Priority Stack Number\n\r");
+							debug_log("Task_Name  Task_State Priority Stack  Number\n\r");
 							debug_log("%s\n\r", pWriteBuffer);
 						}	
 					}
@@ -307,15 +307,21 @@ void sendDel(caMessage_t* msgToSimulator, char* pcOutputString) {
 	info = strtok(NULL, "<");
 	type = *info - 48;
 	if (type == 0) {
+
+		TaskHandle_t xTask = taskSim;
 		vTaskSuspendAll();
 		if (taskSim != NULL) {
-        	vTaskDelete(taskSim);
+			taskSim = NULL;
+        	vTaskDelete(xTask);
     	}
 		xTaskResumeAll();
 	} else if (type == 1) {
+
+		TaskHandle_t xTask = taskJoystick;
 		vTaskSuspendAll();
 		if (taskJoystick != NULL) {
-        	vTaskDelete(taskJoystick);
+			taskJoystick = NULL;
+        	vTaskDelete(xTask);
     	}
 		xTaskResumeAll();
 	}
@@ -333,6 +339,8 @@ void driverCre(caMessage_t* msgToSimulator, char* pcOutputString) {
 	if (type == 0) {
 		vTaskSuspendAll();
 		if (taskSim == NULL) {
+
+			debug_log("SIMULATOR Task created\n\r");
         	xTaskCreate(
 				(void *) &s4575272TaskCAG_Simulator,     // Function that implements the task
 				(const signed char *) "CAGSimulatorTask",   // Text name for the task
@@ -343,9 +351,11 @@ void driverCre(caMessage_t* msgToSimulator, char* pcOutputString) {
 		}
 		xTaskResumeAll();
 	} else if (type == 1) {
+
 		vTaskSuspendAll();
-		if (taskJoystick = NULL) {
-			debug_log("Joystick created\n\r");
+		if (taskJoystick == NULL) {
+
+			debug_log("Joystick Task created\n\r");
         	xTaskCreate(
 				(void *) &s4575272TaskCAG_Joystick,     // Function that implements the task
 				(const signed char *) "CAGJoystickTask",   // Text name for the task

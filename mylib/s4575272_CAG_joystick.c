@@ -42,7 +42,7 @@ void s4575272TaskCAG_Joystick(void) {
     
 
     for (;;) {
-
+        
         HAL_ADC_Start(&AdcHandle1); 
 	    HAL_ADC_Start(&AdcHandle2);
 		
@@ -54,6 +54,7 @@ void s4575272TaskCAG_Joystick(void) {
         }
 
 		vTaskDelay(50);
+        
 	}
 
 }

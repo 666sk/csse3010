@@ -43,11 +43,9 @@ void s4575272TaskCAG_Display(void) {
 
         //if (taskSim != NULL) {
             ssd1306_Fill(Black);    //Clear Screen
-            
-            // if (taskSim != NULL) {
-            //     vTaskSuspend(taskSim);
-            // }
-            vTaskSuspend(taskSim);
+            if (taskSim != NULL) {
+                vTaskSuspend(taskSim);
+            }
             for (int i = 0; i < 16; i++) {
 
                 for (int j = 0; j < 64; j++) {
@@ -62,11 +60,10 @@ void s4575272TaskCAG_Display(void) {
                 }
             }
             ssd1306_UpdateScreen();
-
-            // if (taskSim != NULL) {
-            //     vTaskResume(taskSim);
-            // }
-            vTaskResume(taskSim);
+            
+            if (taskSim != NULL) {
+                vTaskResume(taskSim);
+            }
             
             vTaskDelay(10);
         //}

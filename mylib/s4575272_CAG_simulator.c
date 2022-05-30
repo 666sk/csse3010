@@ -183,10 +183,9 @@ void s4575272TaskCAG_Simulator(void) {
 
                 updateTime = 9950;
             }
-            BRD_LEDBlueToggle();
         }
         
-
+        BRD_LEDBlueToggle();
         if ((HAL_GetTick() - prevTime) > updateTime) {
             for (y = 0; y < 16; y++) {
 
