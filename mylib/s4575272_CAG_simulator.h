@@ -24,7 +24,6 @@
 
 #ifndef __S4575272_CAG_simulator_H__
 #define __S4575272_CAG_simulator_H__
-
 #include "board.h"
 #include "processor_hal.h"
 #include "FreeRTOS.h"
@@ -34,7 +33,6 @@
 #include "event_groups.h"
 #include "debug_log.h"
 #include "s4575272_joystick.h"
-
 #define DEAD_CELL 0x10
 #define ALIVE_CELL 0x11
 #define BLOCK_STILL_LIFE 0x20
@@ -52,7 +50,6 @@
 #define DEL_JOYSTICK 0X05
 #define CRE_SIMULATOR 0X04
 #define CRE_JOYSTICK 0X05
-
 #define EVT_KEY_W   1 << 0
 #define EVT_KEY_A   1 << 1 
 #define EVT_KEY_S   1 << 2
@@ -64,10 +61,8 @@
 #define EVT_KEY_C   1 << 8
 #define KEYCTRL_EVENT   0x1ff
 
-
 #define CAG_SIMULATOR_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 15 )
 #define CAG_SIMULATOR_TASK_PRIORITY        ( tskIDLE_PRIORITY + 4 )
-
 
 typedef struct caMessage {
     
@@ -82,7 +77,6 @@ QueueHandle_t simulatorMsgQ;
 QueueHandle_t signalMsgQ;
 
 //QueueHandle_t signalMsgQ;
-
 typedef struct signalMsg {
     
     int xSignal;
@@ -93,14 +87,12 @@ typedef struct signalMsg {
 SemaphoreHandle_t displaySemaphore;
 SemaphoreHandle_t pbSemaphore;	// Semaphore for pushbutton interrupt
 
-
 EventGroupHandle_t keyctrlEventGroup;
 
 
 
 int grid[16][64];  //the core global grid that performs the simulation
 static uint32_t prevTime1 = 0;  //Debouncing for on board pushbutton
-
 
 TaskHandle_t taskSim;
 TaskHandle_t taskGrid;

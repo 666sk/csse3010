@@ -35,7 +35,6 @@ void s4575272TaskCAG_Simulator(void) {
     uint8_t xIndex = 0; 
     uint8_t yIndex = 0;
     uint8_t start = 1;   //0 stop 1 start
-
     EventBits_t uxBits;
     keyctrlEventGroup = xEventGroupCreate();
 
@@ -53,40 +52,34 @@ void s4575272TaskCAG_Simulator(void) {
         uxBits = xEventGroupWaitBits(keyctrlEventGroup, KEYCTRL_EVENT, pdTRUE, pdFALSE, 10);
 
         if ((uxBits & EVT_KEY_W) != 0) {    //if 'W pressed' detected
-
             if (yIndex > 0) {
                 yIndex += (-1);
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_W);
 		} else if ((uxBits & EVT_KEY_A) != 0) {     //if 'A pressed' detected
-
             if (xIndex > 0) {
                 xIndex += (-1);
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_A);
         } else if ((uxBits & EVT_KEY_S) != 0) {     //if 'S pressed' detected
-
             if (yIndex < 15) {
                 yIndex += 1;
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_S);
         } else if ((uxBits & EVT_KEY_D) != 0) {     //if 'D pressed' detected
-
             if (xIndex < 63) {
                 xIndex += 1;
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_D);
         } else if ((uxBits & EVT_KEY_P) != 0) {     //if 'P pressed' detected
-
             start = ~start & 0x01;
             debug_log("Toggle Start/Stop!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_P);
         } else if ((uxBits & EVT_KEY_O) != 0) {     //if 'O pressed' detected
-
             xIndex = 0;
             yIndex = 0;
             debug_log("Move to Origin!\n\r");
@@ -142,6 +135,9 @@ void s4575272TaskCAG_Simulator(void) {
             } else if (msgFromMnem.type == CLEAR) {
 
                 clearGrid();
+            } else if (msgFromMnem.type == NONE) {
+                
+                debug_log("Inappropriate type\n\r");
             }
 
         }
@@ -300,73 +296,117 @@ int nbr_count(int grid[16][64], int i, int j) {
 //Draw a beacon model in the grid
 void drawBeacon(caMessage_t* msgFromMnem) {
 
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
-    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 3] = 1;
-    grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 3] = 1;
-    grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 2] = 1; 
+    if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
+        && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
+        grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 3] = 1;
+        grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 3] = 1;
+        grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 2] = 1;
+    } else {
+
+        debug_log("Inappropriate X or Y value\n\r");
+    }
+     
 }
 
 //Draw a blinker model in the grid
 void drawBlinker(caMessage_t* msgFromMnem) {
 
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;   
+    if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
+        && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;  
+    } else {
+
+        debug_log("Inappropriate X or Y value\n\r");
+    } 
 }
 
 //Draw a toad model in the grid
 void drawToad(caMessage_t* msgFromMnem) {
 
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 3] = 1; 
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1; 
+    if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
+        && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 3] = 1; 
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1;
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1; 
+    } else {
+
+        debug_log("Inappropriate X or Y value\n\r");
+    }
 }
 
 //Draw a block model in the grid
 void drawBlock(caMessage_t* msgFromMnem) {
 
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 1] = 1;
+    if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
+        && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 1] = 1;
+    } else {
+
+        debug_log("Inappropriate X or Y value\n\r");
+    }
 }
 
 //Draw a beehive model in the grid
 void drawBeehive(caMessage_t* msgFromMnem) {
 
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 3] = 1;
-    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 2] = 1;
+    if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
+        && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 3] = 1;
+        grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 2] = 1;
+    } else {
+
+        debug_log("Inappropriate X or Y value\n\r");
+    }
 }
 
 //Draw a loaf model in the grid
 void drawLoaf(caMessage_t* msgFromMnem) {
 
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1; 
-    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 3] = 1;
-    grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 2] = 1;
+    if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
+        && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1;
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1; 
+        grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x] = 1;
+        grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 3] = 1;
+        grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y + 3][msgFromMnem->cell_x + 2] = 1;
+    } else {
+
+        debug_log("Inappropriate X or Y value\n\r");
+    }
 }
 
 //Draw a glider model in the grid
 void drawGlider(caMessage_t* msgFromMnem) {
 
-    grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1;
-    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x] = 1;
-    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 1] = 1;
-    grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 2] = 1;
+    if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
+        && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+        grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1;
+        grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x] = 1;
+        grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 1] = 1;
+        grid[msgFromMnem->cell_y + 2][msgFromMnem->cell_x + 2] = 1;
+    } else {
+
+        debug_log("Inappropriate X or Y value\n\r");
+    }
 }
 
 //Clear the entire grid

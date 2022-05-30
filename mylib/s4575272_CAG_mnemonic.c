@@ -24,7 +24,6 @@
 #include "s4575272_CAG_mnemonic.h"
 #include "s4575272_cli_CAG_mnemonic.h"
 
-
 //Initialize the task of mnemonic mode
 void s4575272_tsk_CAG_mnemonic_init(void) {
 
@@ -94,7 +93,6 @@ void s4575272TaskCAG_Mnemonic(void) {
 
 			/* Echo character */
 			debug_putc(cRxedChar);   //not fflush yet
-
 			/* Process only if return is received. */
 			if (cRxedChar == '\r') {
 
@@ -113,21 +111,21 @@ void s4575272TaskCAG_Mnemonic(void) {
 					xReturned = FreeRTOS_CLIProcessCommand( cInputString, pcOutputString, configCOMMAND_INT_MAX_OUTPUT_SIZE );
 
 					//debug_log("pcOutputString is %s, cInputString is %s\n\r", pcOutputString, cInputString);
-
 					/* Display CLI command output string (not thread safe) */
 					//Doing queue stuff
-					if (*(cInputString) == 'h') {
+					
 						portENTER_CRITICAL();
-						for (i = 0; i < (int) strlen(pcOutputString); i++) {
-							debug_putc(*(pcOutputString + i));
+						if (*(cInputString) == 'h') {
+							for (i = 0; i < (int) strlen(pcOutputString); i++) {
+								debug_putc(*(pcOutputString + i));
+							}
 						}
 						portEXIT_CRITICAL();
-					}
+					
 
 					if (simulatorMsgQ != NULL) {
 
 						if (*(pcOutputString) == '1') {  //still
-
 							sendStill(&msgToSimulator, pcOutputString);
 							if (taskSim != NULL) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
@@ -145,19 +143,16 @@ void s4575272TaskCAG_Mnemonic(void) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
 							}
 						} else if (*(pcOutputString) == '4') {    //start
-
 							sendStart(&msgToSimulator);
 							if (taskSim != NULL) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
 							}
 						} else if (*(pcOutputString) == '5') {    //stop
-
 							sendStop(&msgToSimulator);
 							if (taskSim != NULL) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
 							}
 						} else if (*(pcOutputString) == '6') {    //clear
-
 							sendClear(&msgToSimulator);
 							if (taskSim != NULL) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
@@ -166,11 +161,10 @@ void s4575272TaskCAG_Mnemonic(void) {
 							
 							sendDel(&msgToSimulator, pcOutputString);
 						} else if (*(pcOutputString) == '8') {    //cre
-
 							driverCre(&msgToSimulator, pcOutputString);
 						} else if (*(pcOutputString) == '9') {    //system
 
-							debug_log("The system time is %dms\n\r", HAL_GetTick());
+							debug_log("The system time is %d ms\n\r", HAL_GetTick());
 						} else if (*(pcOutputString) == '0') {    //usage
 
 							char pWriteBuffer[2048];
@@ -190,7 +184,6 @@ void s4575272TaskCAG_Mnemonic(void) {
 			} else {
 
 				debug_flush();		//Transmit USB buffer
-
 				if( cRxedChar == '\r' ) {
 
 					/* Ignore the character. */
@@ -352,12 +345,13 @@ void driverCre(caMessage_t* msgToSimulator, char* pcOutputString) {
 	} else if (type == 1) {
 		vTaskSuspendAll();
 		if (taskJoystick = NULL) {
+			debug_log("Joystick created\n\r");
         	xTaskCreate(
 				(void *) &s4575272TaskCAG_Joystick,     // Function that implements the task
 				(const signed char *) "CAGJoystickTask",   // Text name for the task
 				CAG_JOYSTICK_TASK_STACK_SIZE,            // Stack size in words, not bytes
 				NULL,                           // No Parameter needed
-				CAG_JOYSTICK_TASK_PRIORITY + 2,              // Priority at which the task is created
+				CAG_JOYSTICK_TASK_PRIORITY,              // Priority at which the task is created
 				&taskJoystick);
 			}
 		xTaskResumeAll();

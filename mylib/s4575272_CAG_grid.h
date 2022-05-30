@@ -15,13 +15,10 @@
 
 #ifndef __S4575272_CAG_grid_H__
 #define __S4575272_CAG_grid_H__
-
 #include "s4575272_CAG_simulator.h"
 #include "s4575272_lta1000g.h"
-
 #define CAG_GRID_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 8 )
 #define CAG_GRID_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
-
 uint8_t mode;
 
 void s4575272_tsk_CAG_grid_init(void);
@@ -33,6 +30,8 @@ EventBits_t recvCharHandler(char recvChar,EventGroupHandle_t *keyctrlEventGroup,
 
 
 #endif
+
+
 
 
 

@@ -14,7 +14,6 @@
  */
 
 #include "s4575272_CAG_grid.h"
-
 //Initialize the task of grid
 void s4575272_tsk_CAG_grid_init(void) {
     
@@ -50,9 +49,7 @@ void s4575272TaskCAG_Grid(void) {
     char recvChar;   //Receiving chars from keyboard
     uint8_t xIndex = 0; 
     uint8_t yIndex = 0;   //indicates the current X and Y values used for LED Bar display cursor location
-
     mode = 1;   //1 is grid mode, 0 is mnemonic mode
-
     for (;;) {
 
         if (mode){
@@ -129,4 +126,5 @@ EventBits_t recvCharHandler(char recvChar, EventGroupHandle_t *keyctrlEventGroup
     }
     return uxBits;
 }
+
 
