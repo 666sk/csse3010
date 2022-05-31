@@ -122,5 +122,3 @@ EventBits_t recvCharHandler(char recvChar, EventGroupHandle_t *keyctrlEventGroup
     }
     return uxBits;
 }
-
-

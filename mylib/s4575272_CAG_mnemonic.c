@@ -1,4 +1,4 @@
- /** 
+/** 
  **************************************************************
  * @file mylib/s457527_CAG_menmonic.c
  * @author Kuang Sheng - 45752720
@@ -23,7 +23,6 @@
 
 #include "s4575272_CAG_mnemonic.h"
 #include "s4575272_cli_CAG_mnemonic.h"
-
 //Initialize the task of mnemonic mode
 void s4575272_tsk_CAG_mnemonic_init(void) {
 
@@ -110,12 +109,11 @@ void s4575272TaskCAG_Mnemonic(void) {
 					/* Returns pdFALSE, when all strings have been returned */
 					xReturned = FreeRTOS_CLIProcessCommand( cInputString, pcOutputString, configCOMMAND_INT_MAX_OUTPUT_SIZE );
 
-					//debug_log("pcOutputString is %s, cInputString is %s\n\r", pcOutputString, cInputString);
 					/* Display CLI command output string (not thread safe) */
 					//Doing queue stuff
 					
 						portENTER_CRITICAL();
-						if ((*(cInputString) == 'h') || (*(pcOutputString) == 'I')) {
+						if ((*(cInputString) == 'h') || (*(pcOutputString) == 'I') || (*(pcOutputString) == 'C')) {
 							for (i = 0; i < (int) strlen(pcOutputString); i++) {
 								debug_putc(*(pcOutputString + i));
 							}
@@ -163,10 +161,8 @@ void s4575272TaskCAG_Mnemonic(void) {
 						} else if (*(pcOutputString) == '8') {    //cre
 							driverCre(&msgToSimulator, pcOutputString);
 						} else if (*(pcOutputString) == '9') {    //system
-
 							debug_log("The system time is %d ms\n\r", HAL_GetTick());
 						} else if (*(pcOutputString) == '0') {    //usage
-
 							char pWriteBuffer[2048];
 							vTaskList((char *)&pWriteBuffer);
 							debug_log("Task_Name  Task_State Priority Stack  Number\n\r");

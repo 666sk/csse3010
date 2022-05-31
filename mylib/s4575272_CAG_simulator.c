@@ -15,7 +15,6 @@
  */
 
 #include "s4575272_CAG_simulator.h"
-
 //The task of simulating the game of life
 void s4575272TaskCAG_Simulator(void) {
     

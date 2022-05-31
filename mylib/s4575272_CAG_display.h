@@ -21,7 +21,7 @@
 #include "fonts.h"
 #include "s4575272_oled.h"
 #include "s4575272_CAG_simulator.h"
-#define CAG_OLED_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 10 )
+#define CAG_OLED_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 6 )
 #define CAG_OLED_TASK_PRIORITY        ( tskIDLE_PRIORITY + 3 )
 QueueHandle_t displayMsgQ;
 

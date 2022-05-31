@@ -31,7 +31,7 @@
 #include "string.h"
 
 #define CAG_MNEMONIC_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 10 )
-#define CAG_MNEMONIC_TASK_PRIORITY        ( tskIDLE_PRIORITY + 2 )
+#define CAG_MNEMONIC_TASK_PRIORITY        ( tskIDLE_PRIORITY + 3 )
 
 uint8_t mode;
 
