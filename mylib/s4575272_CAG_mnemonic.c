@@ -124,6 +124,7 @@ void s4575272TaskCAG_Mnemonic(void) {
 					if (simulatorMsgQ != NULL) {
 
 						if (*(pcOutputString) == '1') {  //still
+						
 							sendStill(&msgToSimulator, pcOutputString);
 							if (taskSim != NULL) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
@@ -141,16 +142,19 @@ void s4575272TaskCAG_Mnemonic(void) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
 							}
 						} else if (*(pcOutputString) == '4') {    //start
+
 							sendStart(&msgToSimulator);
 							if (taskSim != NULL) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
 							}
 						} else if (*(pcOutputString) == '5') {    //stop
+
 							sendStop(&msgToSimulator);
 							if (taskSim != NULL) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
 							}
 						} else if (*(pcOutputString) == '6') {    //clear
+
 							sendClear(&msgToSimulator);
 							if (taskSim != NULL) {
 								xQueueSendToFront(simulatorMsgQ, ( void * ) &msgToSimulator, ( portTickType ) 10 );
@@ -159,10 +163,13 @@ void s4575272TaskCAG_Mnemonic(void) {
 							
 							sendDel(&msgToSimulator, pcOutputString);
 						} else if (*(pcOutputString) == '8') {    //cre
+
 							driverCre(&msgToSimulator, pcOutputString);
 						} else if (*(pcOutputString) == '9') {    //system
+
 							debug_log("The system time is %d ms\n\r", HAL_GetTick());
 						} else if (*(pcOutputString) == '0') {    //usage
+
 							char pWriteBuffer[2048];
 							vTaskList((char *)&pWriteBuffer);
 							debug_log("Task_Name  Task_State Priority Stack  Number\n\r");

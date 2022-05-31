@@ -48,34 +48,40 @@ void s4575272TaskCAG_Simulator(void) {
         uxBits = xEventGroupWaitBits(keyctrlEventGroup, KEYCTRL_EVENT, pdTRUE, pdFALSE, 10);
 
         if ((uxBits & EVT_KEY_W) != 0) {    //if 'W pressed' detected
+
             if (yIndex > 0) {
                 yIndex += (-1);
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_W);
 		} else if ((uxBits & EVT_KEY_A) != 0) {     //if 'A pressed' detected
+
             if (xIndex > 0) {
                 xIndex += (-1);
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_A);
         } else if ((uxBits & EVT_KEY_S) != 0) {     //if 'S pressed' detected
+
             if (yIndex < 15) {
                 yIndex += 1;
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_S);
         } else if ((uxBits & EVT_KEY_D) != 0) {     //if 'D pressed' detected
+
             if (xIndex < 63) {
                 xIndex += 1;
             }
             debug_log("Current location is (%d, %d)!\n\r", xIndex, yIndex);
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_D);
         } else if ((uxBits & EVT_KEY_P) != 0) {     //if 'P pressed' detected
+
             start = ~start & 0x01;
             debug_log("Toggle Start/Stop!\n\r");
 			uxBits = xEventGroupClearBits(keyctrlEventGroup, EVT_KEY_P);
         } else if ((uxBits & EVT_KEY_O) != 0) {     //if 'O pressed' detected
+        
             xIndex = 0;
             yIndex = 0;
             debug_log("Move to Origin!\n\r");
@@ -311,6 +317,7 @@ void drawBlinker(caMessage_t* msgFromMnem) {
 
     if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
         && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;  
@@ -325,6 +332,7 @@ void drawToad(caMessage_t* msgFromMnem) {
 
     if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
         && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 3] = 1; 
@@ -342,6 +350,7 @@ void drawBlock(caMessage_t* msgFromMnem) {
 
     if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
         && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x] = 1;
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
         grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
@@ -357,6 +366,7 @@ void drawBeehive(caMessage_t* msgFromMnem) {
 
     if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
         && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 2] = 1;
         grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1; 
@@ -374,6 +384,7 @@ void drawLoaf(caMessage_t* msgFromMnem) {
 
     if ((msgFromMnem->cell_x >= 0) && (msgFromMnem->cell_x <= 63) 
         && (msgFromMnem->cell_y >= 0) && (msgFromMnem->cell_y <= 63)) {
+
         grid[msgFromMnem->cell_y][msgFromMnem->cell_x + 1] = 1;
         grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x] = 1;
         grid[msgFromMnem->cell_y + 1][msgFromMnem->cell_x + 2] = 1; 
