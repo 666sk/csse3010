@@ -15,15 +15,12 @@
  */
 
 #include "s4575272_CAG_simulator.h"
+
 //The task of simulating the game of life
 void s4575272TaskCAG_Simulator(void) {
     
     hardware_init();  //pb 
     clearGrid();
-    
-    // for (int a = 30; a < 33; a++) {
-    //     grid[12][a] = 1;
-    // }
     
     int nbr_grid[16][64];  
     nbr_grid[16][64] = 0;
@@ -184,7 +181,6 @@ void s4575272TaskCAG_Simulator(void) {
             }
         }
         
-        BRD_LEDBlueToggle();
         if ((HAL_GetTick() - prevTime) > updateTime) {
             for (y = 0; y < 16; y++) {
 

@@ -41,7 +41,6 @@ void s4575272TaskCAG_Display(void) {
 
     for (;;) {
 
-        //if (taskSim != NULL) {
             ssd1306_Fill(Black);    //Clear Screen
             if (taskSim != NULL) {
                 vTaskSuspend(taskSim);
@@ -66,6 +65,6 @@ void s4575272TaskCAG_Display(void) {
             }
             
             vTaskDelay(10);
-        //}
+        
 	}
 }
